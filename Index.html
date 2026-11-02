@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有權元宇宙：財產權與物權探索島 | 公民與社會互動教材</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D Metaverse Islands -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            900: '#070b19',
+                            800: '#0f172a',
+                            700: '#1e293b',
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070b19;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        /* Glassmorphism */
+        .glass {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.45);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070b19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        /* Floating Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+            50% { box-shadow: 0 0 28px rgba(139, 92, 246, 0.75); }
+        }
+        .glow-ring {
+            animation: pulseGlow 3s infinite;
+        }
+        /* 3D Canvas Container */
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 35%, #1e293b 0%, #070b19 85%);
+        }
+        @media (max-width: 768px) {
+            #canvas-container {
+                height: 460px;
+            }
+        }
+        .island-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        .island-label:hover {
+            transform: translate(-50%, -58%) scale(1.08);
+            z-index: 30;
+        }
+        /* Highlight marker for textbook text */
+        .hl-yellow {
+            background: linear-gradient(120deg, rgba(245, 158, 11, 0.28) 0%, rgba(245, 158, 11, 0.42) 100%);
+            padding: 0 4px;
+            border-radius: 4px;
+            color: #fde68a;
+            font-weight: 600;
+        }
+        .hl-cyan {
+            background: linear-gradient(120deg, rgba(6, 182, 212, 0.25) 0%, rgba(6, 182, 212, 0.4) 100%);
+            padding: 0 4px;
+            border-radius: 4px;
+            color: #a5f3fc;
+            font-weight: 600;
+        }
+        .hl-rose {
+            background: linear-gradient(120deg, rgba(244, 63, 94, 0.25) 0%, rgba(244, 63, 94, 0.4) 100%);
+            padding: 0 4px;
+            border-radius: 4px;
+            color: #fecdd3;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- ==================== TOP HUD NAVIGATION ==================== -->
+    <header class="sticky top-0 z-50 glass border-b border-slate-800/80 px-3 sm:px-6 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainView('metaverse')">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid fa-cubes-stacked text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">公民與社會 II · 第5章第2節</span>
+                        <span class="hidden sm:inline-block text-xs text-slate-400 font-mono">P.109 - P.115</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-black tracking-tight bg-gradient-to-r from-white via-cyan-200 to-purple-300 bg-clip-text text-transparent">
+                        所有權元宇宙：財產權與物權探索島
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Main Mode Switcher -->
+            <nav class="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/70 order-3 lg:order-2 w-full lg:w-auto justify-center">
+                <button onclick="switchMainView('metaverse')" id="nav-metaverse" class="nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md">
+                    <i class="fa-solid fa-earth-asia"></i>
+                    <span>3D 知識群島</span>
+                </button>
+                <button onclick="switchMainView('islands')" id="nav-islands" class="nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>六大島嶼實驗室</span>
+                </button>
+                <button onclick="switchMainView('textbook')" id="nav-textbook" class="nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>課本逐頁精讀 (P.109-115)</span>
+                </button>
+                <button onclick="switchMainView('arena')" id="nav-arena" class="nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>法學競技場</span>
+                </button>
+            </nav>
+
+            <!-- Gamification Status Bar & Audio Toggle -->
+            <div class="flex items-center gap-3 order-2 lg:order-3">
+                <!-- XP & Badges Pill -->
+                <div onclick="openCertificateModal()" class="cursor-pointer group bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-xl px-3 py-1.5 flex items-center gap-3 transition-all" title="點擊查看學習進度與榮譽證書">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-amber-400"></i>
+                        <span id="xp-display" class="font-mono font-bold text-sm text-amber-300">0 XP</span>
+                    </div>
+                    <div class="h-4 w-[1px] bg-slate-700"></div>
+                    <div class="flex items-center gap-1" id="badge-mini-bar">
+                        <!-- 6 mini dots dynamically updated -->
+                    </div>
+                </div>
+
+                <!-- Sound Toggle Button -->
+                <button id="sound-toggle" onclick="toggleSound()" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400 transition-all" title="切換音效">
+                    <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-8">
+
+        <!-- ========================================================== -->
+        <!-- VIEW 1: 3D METAVERSE ISLANDS PANORAMA                      -->
+        <!-- ========================================================== -->
+        <section id="view-metaverse" class="space-y-6">
+            <!-- Hero Banner & Core Questions from P.109 -->
+            <div class="glass-card rounded-2xl p-5 sm:p-6 border border-cyan-500/30 relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-56 h-56 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 text-xs font-bold text-cyan-300 bg-cyan-950/80 border border-cyan-500/40 px-3 py-1 rounded-full">
+                            <i class="fa-solid fa-compass fa-spin"></i>
+                            <span>元宇宙探索指南：拖曳滑鼠可 360° 旋轉群島，點擊任一立體島嶼進入深度互動實驗室！</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white">
+                            第二節：所有權的物權特性 —— 三大核心提問
+                        </h2>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            財產權保障人民可依據財產的狀態，自由<span class="hl-cyan">使用、收益及處分</span>的權利，目的在於確保人民可持有維繫個人生存及自由發展人格之生活資源。
+                        </p>
+                    </div>
+                    <!-- 3 Core Questions Pills -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 shrink-0">
+                        <div onclick="openIslandDetail(1)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-emerald-500/40 rounded-xl p-3 transition-all">
+                            <div class="text-xs text-emerald-400 font-bold mb-1"><i class="fa-solid fa-circle-question mr-1"></i>核心提問 01</div>
+                            <div class="text-xs sm:text-sm font-bold text-white">什麼是所有權？</div>
+                        </div>
+                        <div onclick="openIslandDetail(3)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-cyan-500/40 rounded-xl p-3 transition-all">
+                            <div class="text-xs text-cyan-400 font-bold mb-1"><i class="fa-solid fa-circle-question mr-1"></i>核心提問 02</div>
+                            <div class="text-xs sm:text-sm font-bold text-white">所有權有何特性？</div>
+                        </div>
+                        <div onclick="openIslandDetail(4)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800/90 border border-purple-500/40 rounded-xl p-3 transition-all">
+                            <div class="text-xs text-purple-400 font-bold mb-1"><i class="fa-solid fa-circle-question mr-1"></i>核心提問 03</div>
+                            <div class="text-xs sm:text-sm font-bold text-white">法律如何保障與限制？</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive 3D Three.js Viewport -->
+            <div id="canvas-container" class="border border-slate-700/80 shadow-2xl">
+                <!-- Three.js Canvas Injected Here -->
+                <div id="three-mount" class="w-full h-full"></div>
+
+                <!-- 2D Floating HTML Overlays synced to 3D Island Positions -->
+                <div id="island-labels-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+                <!-- Camera Controls HUD -->
+                <div class="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                    <div class="glass px-3.5 py-2 rounded-xl text-xs text-slate-300 flex items-center gap-3 pointer-events-auto">
+                        <span><i class="fa-solid fa-computer-mouse text-cyan-400 mr-1"></i>左鍵拖曳旋轉視角</span>
+                        <span class="hidden sm:inline"><i class="fa-solid fa-arrows-up-down text-purple-400 mr-1"></i>滾輪縮放</span>
+                        <span><i class="fa-solid fa-hand-pointer text-amber-400 mr-1"></i>點擊島嶼進入</span>
+                    </div>
+                    <div class="flex items-center gap-2 pointer-events-auto">
+                        <button onclick="resetCameraView()" class="glass hover:bg-slate-800 px-3 py-2 rounded-xl text-xs font-bold text-cyan-300 border border-cyan-500/30 transition-all">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>重置全景視角
+                        </button>
+                        <button onclick="toggleAutoRotate()" id="btn-autorotate" class="glass hover:bg-slate-800 px-3 py-2 rounded-xl text-xs font-bold text-emerald-300 border border-emerald-500/30 transition-all">
+                            <i class="fa-solid fa-sync fa-spin mr-1"></i>自動巡航中
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Island Selector Cards Grid (6 Islands Overview) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="metaverse-island-cards">
+                <!-- Dynamically populated by JS -->
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- VIEW 2: SIX ISLANDS DEEP-DIVE & INTERACTIVE LABS           -->
+        <!-- ========================================================== -->
+        <section id="view-islands" class="hidden space-y-6">
+            <!-- Island Sub-Navigation Bar -->
+            <div class="glass rounded-2xl p-2 flex items-center gap-2 overflow-x-auto no-scrollbar border border-slate-700/80" id="island-tabs-bar">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Active Island Content Container -->
+            <div id="active-island-container" class="space-y-6">
+                <!-- Populated dynamically when user selects an island (1 to 6) -->
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- VIEW 3: TEXTBOOK PAGE-BY-PAGE VERBATIM READER (P.109-115)  -->
+        <!-- ========================================================== -->
+        <section id="view-textbook" class="hidden space-y-6">
+            <div class="glass-card rounded-2xl p-5 sm:p-6 border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">100% 教材完整收錄</span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mt-2">課本逐頁原文與圖表精讀檢視器（P.109 ～ P.115）</h2>
+                    <p class="text-sm text-slate-300 mt-1">完整對照 PDF 教材每一頁的正文、小辭典、案例插圖與「請想想看」思辨解析，考前複習零死角。</p>
+                </div>
+                <!-- Page Selector Buttons -->
+                <div class="flex flex-wrap gap-1.5" id="textbook-page-buttons">
+                    <!-- P.109 to P.115 buttons -->
+                </div>
+            </div>
+
+            <!-- Page Content Display -->
+            <div id="textbook-page-viewer" class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/80">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- ========================================================== -->
+        <!-- VIEW 4: METAVERSE LAW ARENA (COMPREHENSIVE QUIZ)           -->
+        <!-- ========================================================== -->
+        <section id="view-arena" class="hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 border border-purple-500/40 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-mono uppercase px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Metaverse Law Arena</span>
+                        <h2 class="text-2xl font-black text-white mt-2">元宇宙法學競技場：所有權與物權實戰測驗</h2>
+                        <p class="text-sm text-slate-300 mt-1">共 10 道情境素養題，涵蓋 P.109～P.115 所有觀念（寵物動產、外部性、一物二賣、民法767、758登記與761交付、騎樓與開源合理使用）。</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2 text-center">
+                            <div class="text-xs text-slate-400">目前得分</div>
+                            <div id="quiz-score-num" class="text-2xl font-mono font-black text-cyan-400">0 / 100</div>
+                        </div>
+                        <button onclick="resetQuiz()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600 transition-all">
+                            <i class="fa-solid fa-rotate mr-1"></i>重新挑戰
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-questions-container" class="space-y-4">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="border-t border-slate-800/80 py-6 px-4 text-center text-xs text-slate-400 glass mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                <span class="font-bold text-slate-200">所有權元宇宙：財產權與物權探索島</span> · 依據高中《公民與社會 2》第5章第2節（P.109-P.115）完整教材內容建置
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openCertificateModal()" class="text-cyan-400 hover:underline font-bold">
+                    <i class="fa-solid fa-award mr-1"></i>查看探索徽章與公民證書
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== MODAL: ACHIEVEMENT & CERTIFICATE ==================== -->
+    <div id="certificate-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-2xl w-full rounded-2xl p-6 sm:p-8 border border-cyan-500/40 relative space-y-6 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCertificateModal()" class="absolute top-4 right-4 w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid fa-medal text-3xl text-slate-950"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white">元宇宙公民見習生 · 探索護照</h3>
+                <p class="text-sm text-slate-300">完成六大知識島互動實驗室，點亮全數徽章即可領取榮譽證書！</p>
+            </div>
+
+            <!-- 6 Badges Grid -->
+            <div id="modal-badges-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Certificate Box -->
+            <div id="certificate-card" class="rounded-xl p-5 border border-amber-500/40 bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/30 text-center space-y-3">
+                <div class="text-xs font-mono uppercase tracking-widest text-amber-400">OWNERSHIP METAVERSE CERTIFICATE</div>
+                <h4 class="text-lg font-black text-white">「所有權的物權特性」法學素養認證</h4>
+                <p id="cert-status-text" class="text-xs text-slate-300 leading-relaxed">
+                    您目前已解鎖 <span class="text-amber-300 font-bold" id="cert-unlocked-count">0 / 6</span> 座知識島徽章。可隨時在各島嶼實驗室完成互動操作來點亮徽章！
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        /**************************************************************
+         * 1. SOUND EFFECTS SYNTHESIZER (Web Audio API, No External URL)
+         **************************************************************/
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSfx(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+                    osc.start(now);
+                    osc.stop(now + 0.42);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'laser') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(980, now);
+                    osc.frequency.exponentialRampToValueAtTime(240, now + 0.22);
+                    gain.gain.setValueAtTime(0.16, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                    osc.start(now);
+                    osc.stop(now + 0.22);
+                }
+            } catch (e) {
+                // Ignore audio context restrictions
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+                playSfx('click');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+            }
+        }
+
+        /**************************************************************
+         * 2. GAMIFICATION STATE (XP & 6 ISLAND BADGES)
+         **************************************************************/
+        const gameState = {
+            xp: 0,
+            badges: {
+                1: false,
+                2: false,
+                3: false,
+                4: false,
+                5: false,
+                6: false
+            },
+            activeIsland: 1,
+            activeTextbookPage: 109
+        };
+
+        function addXP(amount, badgeId = null) {
+            gameState.xp += amount;
+            if (badgeId && !gameState.badges[badgeId]) {
+                gameState.badges[badgeId] = true;
+                playSfx('success');
+            } else {
+                playSfx('click');
+            }
+            updateGamificationHUD();
+        }
+
+        function updateGamificationHUD() {
+            document.getElementById('xp-display').textContent = `${gameState.xp} XP`;
+            const miniBar = document.getElementById('badge-mini-bar');
+            miniBar.innerHTML = '';
+            let unlockedCount = 0;
+            for (let i = 1; i <= 6; i++) {
+                const unlocked = gameState.badges[i];
+                if (unlocked) unlockedCount++;
+                const dot = document.createElement('span');
+                dot.className = `w-2.5 h-2.5 rounded-full transition-all ${unlocked ? 'bg-emerald-400 shadow-sm shadow-emerald-400' : 'bg-slate-700'}`;
+                dot.title = `第 ${i} 島徽章：${unlocked ? '已獲得' : '未解鎖'}`;
+                miniBar.appendChild(dot);
+            }
+            const certCountEl = document.getElementById('cert-unlocked-count');
+            if (certCountEl) certCountEl.textContent = `${unlockedCount} / 6`;
+            renderMetaverseIslandCards();
+        }
+
+        /**************************************************************
+         * 3. COMPLETE DATA REPOSITORY (100% TEXTBOOK P.109-115)
+         **************************************************************/
+        const ISLANDS_DATA = [
+            {
+                id: 1,
+                code: "ISLAND 01 · P.109",
+                name: "起源與萬物之島",
+                subtitle: "財產權起源、權利主體與客體、「物」的小辭典",
+                icon: "fa-gem",
+                color: "cyan",
+                hex: 0x06b6d4,
+                pos: [-11, 0.5, -5],
+                badgeName: "萬物鑑識官",
+                summary: "探討古羅馬「私有財產神聖不可侵犯」至工業革命的演進，釐清民法「人（權利主體）」與「物（權利客體）」，以及動產、不動產與寵物的法律定位。"
+            },
+            {
+                id: 2,
+                code: "ISLAND 02 · P.110",
+                name: "生態契約與市場之島",
+                subtitle: "什麼是所有權？國家保障、社會契約論與河川外部性治理",
+                icon: "fa-water",
+                color: "emerald",
+                hex: 0x10b981,
+                pos: [0, 1.2, -9],
+                badgeName: "社會契約守護者",
+                summary: "解析現代市場經濟交易核心、憲法第15條財產權保障，以及為何透過社會契約論將自然資源（如河川）歸為政府管理，避免養豬場排放廢水造成環境公害。"
+            },
+            {
+                id: 3,
+                code: "ISLAND 03 · P.111-112",
+                name: "四大特性與一物二賣劇場島",
+                subtitle: "直接支配性、保護絕對性、排他性、優先性（物權優先於債權）",
+                icon: "fa-laptop-code",
+                color: "amber",
+                hex: 0xf59e0b,
+                pos: [11, 0.6, -5],
+                badgeName: "物權優先裁判官",
+                summary: "透過小辰的筆電完整演繹所有權四大特性，並重現「小辰、元元($5000)與阿庭($6000)一物二賣」經典案例，徹底搞懂債權相對性與物權絕對性！"
+            },
+            {
+                id: 4,
+                code: "ISLAND 04 · P.113",
+                name: "民法 767 號防禦堡壘島",
+                subtitle: "所有權的保障：返還請求權、妨害除去請求權、妨害防止請求權",
+                icon: "fa-shield-halved",
+                color: "rose",
+                hex: 0xf43f5e,
+                pos: [-10, -0.4, 6],
+                badgeName: "767 防禦指揮官",
+                summary: "當所有權遭侵害時如何救濟？駐守民法第 767 條防禦堡壘，針對「無權占有、已經妨害、有妨害之虞」發射三種物上請求權光束！"
+            },
+            {
+                id: 5,
+                code: "ISLAND 05 · P.114",
+                name: "物權法定與產權移轉交易所",
+                subtitle: "所有權的限制：物權法定主義、不動產登記生效(§758) vs 動產交付(§761)",
+                icon: "fa-building-columns",
+                color: "purple",
+                hex: 0x8b5cf6,
+                pos: [0, -0.8, 9],
+                badgeName: "地政產權首席官",
+                summary: "為何物權不能自行創設？陳太太賣房給林先生何時才真正移轉所有權？在產權交易所親自辦理不動產地政登記與動產交付！"
+            },
+            {
+                id: 6,
+                code: "ISLAND 06 · P.115",
+                name: "公益調和與開源未來論壇島",
+                subtitle: "台灣騎樓空間限制、智慧財產權、開放原始碼(Open Source)與合理使用",
+                icon: "fa-scale-balanced",
+                color: "blue",
+                hex: 0x3b82f6,
+                pos: [11, -0.2, 6],
+                badgeName: "公益與開源調和者",
+                summary: "從台灣多雨氣候的「騎樓」內縮設計，到無形「智慧財產權」與「開放原始碼」運動的碰撞，思辨如何透過合理使用調和私益與公益。"
+            }
+        ];
+
+        /**************************************************************
+         * 4. THREE.JS 3D METAVERSE FLOATING ARCHIPELAGO
+         **************************************************************/
+        let scene, camera, renderer, islandMeshes = [], airships = [];
+        let isDragging = false, prevMouse = { x: 0, y: 0 };
+        let cameraAngle = { theta: 0.25, phi: 0.88, radius: 26 };
+        let autoRotate = true;
+        let raycaster, mouseVec;
+
+        function initThreeMetaverse() {
+            const container = document.getElementById('three-mount');
+            if (!container) return;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x070b19, 0.015);
+
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 200);
+            updateCameraPosition();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.innerHTML = '';
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.1);
+            dirLight.position.set(15, 25, 20);
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x8b5cf6, 1.2, 50);
+            pointLight.position.set(0, 6, 0);
+            scene.add(pointLight);
+
+            // Central Metaverse Core Crystal
+            const coreGroup = new THREE.Group();
+            const coreGeo = new THREE.OctahedronGeometry(1.9, 0);
+            const coreMat = new THREE.MeshStandardMaterial({
+                color: 0x38bdf8,
+                emissive: 0x0284c7,
+                emissiveIntensity: 0.5,
+                roughness: 0.2,
+                metalness: 0.8,
+                wireframe: false
+            });
+            const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+            coreGroup.add(coreMesh);
+
+            const ringGeo = new THREE.TorusGeometry(3.2, 0.06, 16, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            coreGroup.add(ringMesh);
+            coreGroup.position.set(0, 1.5, 0);
+            scene.add(coreGroup);
+            scene.userData.coreGroup = coreGroup;
+
+            // Create 6 Floating Islands
+            ISLANDS_DATA.forEach((data, idx) => {
+                const group = new THREE.Group();
+                group.position.set(data.pos[0], data.pos[1], data.pos[2]);
+                group.userData = { islandId: data.id, baseY: data.pos[1], phase: idx * 1.1 };
+
+                // Bottom inverted rock cone
+                const rockGeo = new THREE.CylinderGeometry(3.0, 0.6, 2.4, 7);
+                const rockMat = new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    roughness: 0.85,
+                    metalness: 0.2,
+                    flatShading: true
+                });
+                const rock = new THREE.Mesh(rockGeo, rockMat);
+                rock.position.y = -1.2;
+                group.add(rock);
+
+                // Top glowing platform
+                const topGeo = new THREE.CylinderGeometry(3.2, 3.0, 0.5, 7);
+                const topMat = new THREE.MeshStandardMaterial({
+                    color: data.hex,
+                    emissive: data.hex,
+                    emissiveIntensity: 0.28,
+                    roughness: 0.3,
+                    metalness: 0.5
+                });
+                const topPlatform = new THREE.Mesh(topGeo, topMat);
+                topPlatform.position.y = 0.2;
+                group.add(topPlatform);
+
+                // Distinct 3D Landmark Monument on each island
+                const monumentMat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    emissive: data.hex,
+                    emissiveIntensity: 0.45,
+                    roughness: 0.2
+                });
+
+                let monument;
+                if (data.id === 1) {
+                    // Pyramid + Cube (Things: Movable & Immovable)
+                    monument = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.0, 4), monumentMat);
+                } else if (data.id === 2) {
+                    // Eco Sphere + Water Ring
+                    monument = new THREE.Mesh(new THREE.DodecahedronGeometry(1.1), monumentMat);
+                } else if (data.id === 3) {
+                    // Laptop / Dual Prism
+                    monument = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.2, 1.1), monumentMat);
+                } else if (data.id === 4) {
+                    // 767 Fortress Shield Tower
+                    monument = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.2, 2.1, 6), monumentMat);
+                } else if (data.id === 5) {
+                    // Registry Pillars
+                    monument = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.2, 1.4), monumentMat);
+                } else {
+                    // Balance Torus Knot
+                    monument = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.28, 12, 32), monumentMat);
+                }
+                monument.position.y = 1.5;
+                group.add(monument);
+
+                // Energy Connection Line to Central Core
+                const points = [
+                    new THREE.Vector3(data.pos[0], data.pos[1], data.pos[2]),
+                    new THREE.Vector3(0, 1.5, 0)
+                ];
+                const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const lineMat = new THREE.LineBasicMaterial({ color: data.hex, transparent: true, opacity: 0.35 });
+                const line = new THREE.Line(lineGeo, lineMat);
+                scene.add(line);
+
+                scene.add(group);
+                islandMeshes.push(group);
+            });
+
+            // Starfield Particles
+            const starGeo = new THREE.BufferGeometry();
+            const starCount = 350;
+            const starPositions = new Float32Array(starCount * 3);
+            for (let i = 0; i < starCount * 3; i++) {
+                starPositions[i] = (Math.random() - 0.5) * 90;
+            }
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+            const starMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.22 });
+            const stars = new THREE.Points(starGeo, starMat);
+            scene.add(stars);
+
+            // Build 2D HTML Floating Labels for each island
+            buildIslandHTMLOverlays();
+
+            // Mouse / Touch Interaction
+            raycaster = new THREE.Raycaster();
+            mouseVec = new THREE.Vector2();
+
+            const domElem = renderer.domElement;
+            domElem.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                autoRotate = false;
+                updateAutoRotateButton();
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                cameraAngle.theta -= dx * 0.007;
+                cameraAngle.phi = Math.max(0.35, Math.min(1.35, cameraAngle.phi - dy * 0.006));
+                updateCameraPosition();
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            // Touch Support
+            domElem.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    autoRotate = false;
+                    updateAutoRotateButton();
+                    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => { isDragging = false; });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - prevMouse.x;
+                const dy = e.touches[0].clientY - prevMouse.y;
+                cameraAngle.theta -= dx * 0.007;
+                cameraAngle.phi = Math.max(0.35, Math.min(1.35, cameraAngle.phi - dy * 0.006));
+                updateCameraPosition();
+                prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            domElem.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraAngle.radius = Math.max(15, Math.min(38, cameraAngle.radius + e.deltaY * 0.015));
+                updateCameraPosition();
+            }, { passive: false });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function updateCameraPosition() {
+            if (!camera) return;
+            camera.position.x = cameraAngle.radius * Math.sin(cameraAngle.phi) * Math.sin(cameraAngle.theta);
+            camera.position.y = cameraAngle.radius * Math.cos(cameraAngle.phi);
+            camera.position.z = cameraAngle.radius * Math.sin(cameraAngle.phi) * Math.cos(cameraAngle.theta);
+            camera.lookAt(0, 0, 0);
+        }
+
+        function resetCameraView() {
+            playSfx('click');
+            cameraAngle = { theta: 0.25, phi: 0.88, radius: 26 };
+            autoRotate = true;
+            updateAutoRotateButton();
+            updateCameraPosition();
+        }
+
+        function toggleAutoRotate() {
+            playSfx('click');
+            autoRotate = !autoRotate;
+            updateAutoRotateButton();
+        }
+
+        function updateAutoRotateButton() {
+            const btn = document.getElementById('btn-autorotate');
+            if (!btn) return;
+            if (autoRotate) {
+                btn.innerHTML = `<i class="fa-solid fa-sync fa-spin mr-1"></i>自動巡航中`;
+                btn.className = `glass hover:bg-slate-800 px-3 py-2 rounded-xl text-xs font-bold text-emerald-300 border border-emerald-500/30 transition-all`;
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-pause mr-1"></i>巡航已暫停`;
+                btn.className = `glass hover:bg-slate-800 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 border border-slate-600/40 transition-all`;
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('three-mount');
+            if (!container || !renderer || !camera) return;
+            if (container.clientWidth === 0) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function buildIslandHTMLOverlays() {
+            const layer = document.getElementById('island-labels-layer');
+            layer.innerHTML = '';
+            ISLANDS_DATA.forEach(island => {
+                const badgeEl = document.createElement('div');
+                badgeEl.id = `label-island-${island.id}`;
+                badgeEl.className = `island-label glass px-3 py-2 rounded-xl border border-${island.color}-500/50 shadow-lg flex items-center gap-2.5`;
+                badgeEl.onclick = () => openIslandDetail(island.id);
+                badgeEl.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-${island.color}-500/20 border border-${island.color}-400/40 flex items-center justify-center text-${island.color}-300 shrink-0">
+                        <i class="fa-solid ${island.icon}"></i>
+                    </div>
+                    <div class="text-left pr-1">
+                        <div class="text-[10px] font-mono text-${island.color}-300 font-bold leading-none">${island.code}</div>
+                        <div class="text-xs sm:text-sm font-black text-white whitespace-nowrap">${island.name}</div>
+                    </div>
+                `;
+                layer.appendChild(badgeEl);
+            });
+        }
+
+        function updateIslandHTMLOverlays() {
+            const container = document.getElementById('three-mount');
+            if (!container || !camera) return;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            if (width === 0) return;
+
+            islandMeshes.forEach(group => {
+                const id = group.userData.islandId;
+                const label = document.getElementById(`label-island-${id}`);
+                if (!label) return;
+
+                const worldPos = new THREE.Vector3();
+                group.getWorldPosition(worldPos);
+                worldPos.y += 3.1; // Float above island monument
+
+                worldPos.project(camera);
+
+                const x = (worldPos.x * 0.5 + 0.5) * width;
+                const y = (-(worldPos.y * 0.5) + 0.5) * height;
+
+                if (worldPos.z < 1) {
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                }
+            });
+        }
+
+        function animateMetaverse() {
+            requestAnimationFrame(animateMetaverse);
+            const time = performance.now() * 0.001;
+
+            if (autoRotate && !isDragging) {
+                cameraAngle.theta += 0.0018;
+                updateCameraPosition();
+            }
+
+            if (scene && scene.userData.coreGroup) {
+                scene.userData.coreGroup.rotation.y = time * 0.6;
+                scene.userData.coreGroup.position.y = 1.5 + Math.sin(time * 2) * 0.3;
+            }
+
+            islandMeshes.forEach(group => {
+                group.position.y = group.userData.baseY + Math.sin(time * 1.6 + group.userData.phase) * 0.35;
+                if (group.children[2]) {
+                    group.children[2].rotation.y = time * 0.8;
+                }
+            });
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+                updateIslandHTMLOverlays();
+            }
+        }
+
+        /**************************************************************
+         * 5. METAVERSE CARDS & VIEW NAVIGATION
+         **************************************************************/
+        function renderMetaverseIslandCards() {
+            const grid = document.getElementById('metaverse-island-cards');
+            if (!grid) return;
+            grid.innerHTML = ISLANDS_DATA.map(island => {
+                const isDone = gameState.badges[island.id];
+                return `
+                    <div onclick="openIslandDetail(${island.id})" class="glass-card rounded-2xl p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col justify-between gap-4 group">
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-${island.color}-500/20 text-${island.color}-300 border border-${island.color}-500/30">
+                                    ${island.code}
+                                </span>
+                                ${isDone
+                                    ? `<span class="text-xs font-bold text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i>已點亮徽章</span>`
+                                    : `<span class="text-xs text-slate-400 flex items-center gap-1"><i class="fa-regular fa-circle"></i>待探索</span>`
+                                }
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-${island.color}-500/20 border border-${island.color}-500/40 flex items-center justify-center text-${island.color}-400 text-xl shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid ${island.icon}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white group-hover:text-cyan-300 transition-colors">${island.name}</h3>
+                                    <p class="text-xs text-slate-400">${island.subtitle}</p>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1">
+                                ${island.summary}
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-cyan-400">
+                            <span>進入島嶼知識庫與實驗室</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchMainView(viewName) {
+            playSfx('click');
+            ['metaverse', 'islands', 'textbook', 'arena'].forEach(v => {
+                const sec = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`nav-${v}`);
+                if (v === viewName) {
+                    sec.classList.remove('hidden');
+                    btn.className = "nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md";
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = "nav-btn flex-1 lg:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 text-slate-300 hover:text-white hover:bg-slate-800";
+                }
+            });
+
+            if (viewName === 'metaverse') {
+                setTimeout(onWindowResize, 60);
+            } else if (viewName === 'islands') {
+                renderIslandTabs();
+                renderActiveIslandContent(gameState.activeIsland);
+            } else if (viewName === 'textbook') {
+                renderTextbookReader(gameState.activeTextbookPage);
+            } else if (viewName === 'arena') {
+                renderQuizArena();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openIslandDetail(islandId) {
+            gameState.activeIsland = islandId;
+            switchMainView('islands');
+        }
+
+        /**************************************************************
+         * 6. SIX ISLANDS DEEP-DIVE CONTENT & INTERACTIVE LABS
+         **************************************************************/
+        function renderIslandTabs() {
+            const bar = document.getElementById('island-tabs-bar');
+            bar.innerHTML = ISLANDS_DATA.map(island => {
+                const active = island.id === gameState.activeIsland;
+                const done = gameState.badges[island.id];
+                return `
+                    <button onclick="selectIslandTab(${island.id})" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                        active
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                            : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800'
+                    }">
+                        <i class="fa-solid ${island.icon}"></i>
+                        <span>第 ${island.id} 島：${island.name}</span>
+                        ${done ? '<i class="fa-solid fa-circle-check text-emerald-300"></i>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectIslandTab(id) {
+            playSfx('click');
+            gameState.activeIsland = id;
+            renderIslandTabs();
+            renderActiveIslandContent(id);
+        }
+
+        function renderActiveIslandContent(id) {
+            const container = document.getElementById('active-island-container');
+            if (id === 1) container.innerHTML = getIsland1HTML();
+            else if (id === 2) container.innerHTML = getIsland2HTML();
+            else if (id === 3) container.innerHTML = getIsland3HTML();
+            else if (id === 4) container.innerHTML = getIsland4HTML();
+            else if (id === 5) container.innerHTML = getIsland5HTML();
+            else if (id === 6) container.innerHTML = getIsland6HTML();
+        }
+
+        /* ---------------- ISLAND 1: P.109 ---------------- */
+        function getIsland1HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: Complete Textbook Knowledge Base (P.109) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-cyan-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-cyan-400 font-bold">教材精讀 · 課本 P.109</span>
+                                <button onclick="jumpToTextbookPage(109)" class="text-xs text-cyan-300 hover:underline"><i class="fa-solid fa-book-open mr-1"></i>對照課本原文</button>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第一島：起源與萬物之島</h3>
+
+                            <div class="space-y-3 text-sm text-slate-200 leading-relaxed">
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-cyan-300 mb-1"><i class="fa-solid fa-bullseye mr-1.5"></i>財產權的保障目的</div>
+                                    財產權保障人民可依據財產的狀態，自由<span class="hl-cyan">使用、收益及處分</span>的權利，其目的在於確保人民可持有<span class="hl-yellow">維繫個人生存及自由發展人格之生活資源</span>。
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-amber-300 mb-1"><i class="fa-solid fa-landmark mr-1.5"></i>歷史演進：古羅馬 ➔ 工業革命</div>
+                                    <ul class="list-disc list-inside space-y-1 text-slate-300">
+                                        <li><strong>古羅馬時期</strong>：奠定了「<span class="hl-yellow">私有財產神聖不可侵犯</span>」原則，以維護私有財產權。</li>
+                                        <li><strong>工業革命後</strong>：工人領取薪資以維持生活條件，因此私有財產權的保障成為人們<span class="hl-cyan">勤奮工作的動力之一</span>，同時也促使<span class="hl-cyan">資源運作更有效率</span>。</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-purple-300 mb-1"><i class="fa-solid fa-sitemap mr-1.5"></i>民法架構：權利主體 vs 權利客體 vs 物權</div>
+                                    <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+                                        <li><strong>權利主體</strong>：民法以「<span class="hl-cyan">人</span>」（自然人、法人）為權利主體。</li>
+                                        <li><strong>權利客體</strong>：以「<span class="hl-cyan">物</span>」為權利客體。指受權利主體支配之各項權利的對象或內容，不僅包括有形的「物」，也包括<span class="hl-yellow">專利權、著作權等精神產物</span>（無形財產）。</li>
+                                        <li><strong>物權定義</strong>：指權利主體對物<span class="hl-cyan">直接支配、享受其利益，並具有排他性</span>的權利，而<strong>所有權</strong>為物權的一種。</li>
+                                    </ul>
+                                </div>
+
+                                <!-- 小辭典：物 -->
+                                <div class="p-4 rounded-xl bg-gradient-to-br from-cyan-950/70 to-slate-900 border border-cyan-500/40">
+                                    <div class="flex items-center gap-2 text-cyan-300 font-black mb-2">
+                                        <i class="fa-solid fa-bookmark"></i>
+                                        <span>【課本小辭典】民法上的「物」</span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                                        民法上的「物」區分為<strong>不動產</strong>及<strong>動產</strong>：<br>
+                                        • <span class="hl-cyan">不動產</span>：指<strong>土地</strong>及<strong>附著在土地上之定著物</strong>（例如：房子）。（民法 §66）<br>
+                                        • <span class="hl-yellow">動產</span>：則是不動產以外的東西，例如：手機、衣服與汽機車等。（民法 §67）<br>
+                                        • <span class="hl-rose">特別考點</span>：從法律的觀點，<strong>寵物也是「物」，屬於動產的一種</strong>！
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 1 (Object Quantum Scanner) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-cyan-500/40 space-y-5">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">INTERACTIVE LAB 01</span>
+                                    <h4 class="text-xl font-black text-white mt-1">民法權利客體 · 量子分類掃描儀</h4>
+                                </div>
+                                <div class="text-xs text-slate-400 font-mono" id="lab1-progress">已掃描 0 / 6</div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-300">
+                                請點擊下方任一生活物件，放入元宇宙掃描艙，並判斷它在《民法》上屬於<strong>「不動產」</strong>、<strong>「動產」</strong>還是<strong>「精神產物（無體財產）」</strong>！
+                            </p>
+
+                            <!-- 6 Target Items to Scan -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="lab1-items-grid">
+                                <button onclick="selectLab1Item(0)" id="lab1-btn-0" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">🐕</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">柴犬寵物</div>
+                                        <div class="text-[10px] text-slate-400">毛小孩夥伴</div>
+                                    </div>
+                                </button>
+                                <button onclick="selectLab1Item(1)" id="lab1-btn-1" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">🏠</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">透天厝房屋</div>
+                                        <div class="text-[10px] text-slate-400">附著於土地</div>
+                                    </div>
+                                </button>
+                                <button onclick="selectLab1Item(2)" id="lab1-btn-2" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">📱</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">智慧型手機</div>
+                                        <div class="text-[10px] text-slate-400">隨身3C</div>
+                                    </div>
+                                </button>
+                                <button onclick="selectLab1Item(3)" id="lab1-btn-3" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">⛰️</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">一筆農地</div>
+                                        <div class="text-[10px] text-slate-400">地表土地</div>
+                                    </div>
+                                </button>
+                                <button onclick="selectLab1Item(4)" id="lab1-btn-4" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">🛵</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">電動機車</div>
+                                        <div class="text-[10px] text-slate-400">交通工具</div>
+                                    </div>
+                                </button>
+                                <button onclick="selectLab1Item(5)" id="lab1-btn-5" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all flex items-center gap-2.5">
+                                    <span class="text-2xl">🎵</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-white">流行歌著作權</div>
+                                        <div class="text-[10px] text-slate-400">音樂創作</div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Active Scanner Chamber -->
+                            <div id="lab1-scanner-box" class="p-5 rounded-2xl bg-slate-950/90 border border-cyan-500/30 text-center space-y-4">
+                                <div id="lab1-current-title" class="text-base font-bold text-cyan-300">👆 請先點擊上方任一物件放入掃描艙</div>
+                                <div id="lab1-action-buttons" class="hidden grid-cols-3 gap-2">
+                                    <button onclick="verifyLab1Answer('動產')" class="py-2.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs sm:text-sm">
+                                        屬於「動產」
+                                    </button>
+                                    <button onclick="verifyLab1Answer('不動產')" class="py-2.5 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 font-bold text-xs sm:text-sm">
+                                        屬於「不動產」
+                                    </button>
+                                    <button onclick="verifyLab1Answer('精神產物')" class="py-2.5 px-3 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold text-xs sm:text-sm">
+                                        屬於「精神產物」
+                                    </button>
+                                </div>
+                                <div id="lab1-feedback" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const lab1Items = [
+            { name: "🐕 柴犬寵物", category: "動產", explain: "【課本P.109小辭典重點】從民法觀點，寵物也是「物」（權利客體），且屬於不動產以外的「動產」！雖然動保法保護動物福利，但在民法財產關係上寵物屬動產。" },
+            { name: "🏠 透天厝房屋", category: "不動產", explain: "【課本P.109小辭典】不動產指土地及「附著在土地上之定著物」，房屋緊密附著於土地上，屬於典型不動產！" },
+            { name: "📱 智慧型手機", category: "動產", explain: "【課本P.109小辭典】不動產以外的東西皆為動產，手機可自由移動且非土地定著物，屬於動產。" },
+            { name: "⛰️ 一筆農地", category: "不動產", explain: "【課本P.109小辭典】土地本身即為民法第66條最核心的「不動產」。" },
+            { name: "🛵 電動機車", category: "動產", explain: "【課本P.109小辭典】汽機車雖然價值不菲且有車牌登記，但在民法上屬於不動產以外之物，因此是「動產」！（移轉以交付生效）" },
+            { name: "🎵 流行歌著作權", category: "精神產物", explain: "【課本P.109正文】權利客體不僅包括有形的「物」，也包括專利權、著作權等「精神產物」（無體財產權）。" }
+        ];
+        let currentLab1Idx = null;
+        let scannedLab1Set = new Set();
+
+        function selectLab1Item(idx) {
+            playSfx('click');
+            currentLab1Idx = idx;
+            document.getElementById('lab1-current-title').innerHTML = `正在掃描：<span class="text-white font-black">${lab1Items[idx].name}</span> — 請選擇其法律分類：`;
+            const btnBox = document.getElementById('lab1-action-buttons');
+            btnBox.classList.remove('hidden');
+            btnBox.classList.add('grid');
+            document.getElementById('lab1-feedback').innerHTML = '';
+        }
+
+        function verifyLab1Answer(choice) {
+            if (currentLab1Idx === null) return;
+            const item = lab1Items[currentLab1Idx];
+            const fb = document.getElementById('lab1-feedback');
+            if (choice === item.category) {
+                scannedLab1Set.add(currentLab1Idx);
+                const btn = document.getElementById(`lab1-btn-${currentLab1Idx}`);
+                if (btn) btn.classList.add('border-emerald-500', 'bg-emerald-950/30');
+                document.getElementById('lab1-progress').textContent = `已掃描 ${scannedLab1Set.size} / 6`;
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-200"><i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i><strong>判斷正確（${item.category}）！</strong>${item.explain}</div>`;
+                addXP(20, scannedLab1Set.size >= 3 ? 1 : null);
+            } else {
+                playSfx('error');
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-200"><i class="fa-solid fa-circle-xmark text-rose-400 mr-1"></i><strong>分類有誤！</strong>再想一想：它是否為土地或定著物？還是有形動產或無形精神創作？</div>`;
+            }
+        }
+
+        /* ---------------- ISLAND 2: P.110 ---------------- */
+        function getIsland2HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: P.110 Textbook Knowledge Base -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-emerald-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-emerald-400 font-bold">教材精讀 · 課本 P.110</span>
+                                <button onclick="jumpToTextbookPage(110)" class="text-xs text-emerald-300 hover:underline"><i class="fa-solid fa-book-open mr-1"></i>對照課本原文</button>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第二島：生態契約與市場之島</h3>
+
+                            <div class="space-y-3 text-sm text-slate-200 leading-relaxed">
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-emerald-300 mb-1">什麼是所有權？</div>
+                                    所有權，是指所有權人可以自由的<span class="hl-cyan">使用、收益、處分</span>所有物，並且<span class="hl-yellow">排除他人干涉</span>的權利。
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-cyan-300 mb-1">(一) 國家為什麼需要保障所有權？</div>
+                                    <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+                                        <li><strong>現代市場經濟制度的核心</strong>：當物的所有權界定清楚後，人們可以<span class="hl-cyan">透過交易來分配各自擁有的物品</span>，來達成彼此最大利益並滿足雙方需求。</li>
+                                        <li><strong>憲法與法律保障</strong>：我國《憲法》第 15 條規定人民之財產權，應予保障。然而，為了<span class="hl-yellow">維護公共利益</span>，國家必須藉由<strong>正當程序</strong>對所有權加以限制，因此，<span class="hl-rose">所有權並非受到絕對的保護</span>。</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                                    <div class="font-bold text-amber-300 mb-1">(二) 所有權保障如何減少對他人的負面影響？</div>
+                                    <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+                                        <li><strong>無主物的環境公害危機</strong>：若自然資源屬於無主物，當有人因為私利而排放廢水進而汙染河川生態時，全體人民只能接受環境公害。</li>
+                                        <li><strong>社會契約論的觀點</strong>：國家的出現就是源於<span class="hl-cyan">人民讓渡部分權利，進而追求全體的利益極大化</span>，因此自然資源歸於<strong>政府的財產</strong>，其具有支配、管理河川的權力，供人民日常生活自由使用之餘，透過法律規範來防止環境公害對多數人民造成影響。</li>
+                                        <li><strong>協商與管理</strong>：透過落實所有權的保障與管理，可以避免對多數人民造成負面影響，縱使無法完全避免，也可以透過<span class="hl-yellow">協商</span>加以處理。</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-4 rounded-xl bg-emerald-950/50 border border-emerald-500/40">
+                                    <div class="text-xs font-bold text-emerald-300 mb-1"><i class="fa-solid fa-image mr-1"></i>【課本圖 5-2-1 案例】養豬場排放的廢水</div>
+                                    <p class="text-xs sm:text-sm text-slate-200">
+                                        臺灣豬隻養殖業過去曾大量排放廢水汙染環境，若國家未落實有效管理，會導致社會無法有效率地運作。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 2 (River Governance & Externality Simulator) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-emerald-500/40 space-y-5">
+                            <div>
+                                <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">INTERACTIVE LAB 02</span>
+                                <h4 class="text-xl font-black text-white mt-1">河川治理與社會契約模擬器（圖 5-2-1 實境推演）</h4>
+                                <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                    切換不同的產權與國家治理模式，觀察當沿岸養豬場排放廢水時，河川生態與社會運作效率的變化！
+                                </p>
+                            </div>
+
+                            <!-- 3 Governance Mode Buttons -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                <button onclick="setRiverMode('unowned')" id="river-btn-unowned" class="p-3 rounded-xl bg-rose-950/60 border-2 border-rose-500 text-left transition-all">
+                                    <div class="text-xs font-black text-rose-300">模式 A：自然資源無主物</div>
+                                    <div class="text-[11px] text-slate-300 mt-0.5">無產權界定、養豬場私利排汙</div>
+                                </button>
+                                <button onclick="setRiverMode('state')" id="river-btn-state" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-left transition-all">
+                                    <div class="text-xs font-black text-emerald-300">模式 B：社會契約政府管理</div>
+                                    <div class="text-[11px] text-slate-300 mt-0.5">河川歸公有財產 + 環保法規限制</div>
+                                </button>
+                                <button onclick="setRiverMode('negotiate')" id="river-btn-negotiate" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-left transition-all">
+                                    <div class="text-xs font-black text-cyan-300">模式 C：產權明確 + 協商機制</div>
+                                    <div class="text-[11px] text-slate-300 mt-0.5">汙染防制設備與居民協商補償</div>
+                                </button>
+                            </div>
+
+                            <!-- Visual River SVG Canvas -->
+                            <div id="river-visual-box" class="rounded-2xl p-5 bg-slate-950 border border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between text-xs font-bold">
+                                    <span id="river-status-badge" class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">⚠️ 狀態：環境公害失控（無主物悲劇）</span>
+                                    <span id="river-efficiency-score" class="font-mono text-rose-400">社會運作效率：25%</span>
+                                </div>
+
+                                <!-- Animated River Bar -->
+                                <div id="river-water-stream" class="h-24 rounded-xl bg-gradient-to-r from-amber-950 via-stone-900 to-rose-950 border border-rose-500/40 flex items-center justify-around px-4 transition-all duration-500">
+                                    <div class="text-center">
+                                        <div class="text-2xl">🐖🏭</div>
+                                        <div class="text-[11px] text-amber-300 font-bold">養豬場排廢水</div>
+                                    </div>
+                                    <div class="text-2xl" id="river-flow-icons">☠️ 🦠 🛢️ 🐟❌</div>
+                                    <div class="text-center">
+                                        <div class="text-2xl">🏘️😷</div>
+                                        <div class="text-[11px] text-rose-300 font-bold" id="river-citizen-label">全體人民承受公害</div>
+                                    </div>
+                                </div>
+
+                                <!-- Explanation Box -->
+                                <div id="river-explanation" class="text-xs sm:text-sm text-slate-200 leading-relaxed p-3.5 rounded-xl bg-slate-900 border border-slate-700">
+                                    <strong>【無主物困境】</strong>如課本 P.110 所述：若自然資源屬於無主物，當養豬場因私利排放廢水汙染河川生態時，全體人民只能被迫接受環境公害，導致社會無法有效率地運作。請點擊上方<strong>「模式 B」</strong>或<strong>「模式 C」</strong>啟動國家治理！
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setRiverMode(mode) {
+            const badge = document.getElementById('river-status-badge');
+            const score = document.getElementById('river-efficiency-score');
+            const stream = document.getElementById('river-water-stream');
+            const icons = document.getElementById('river-flow-icons');
+            const citizen = document.getElementById('river-citizen-label');
+            const exp = document.getElementById('river-explanation');
+
+            ['unowned', 'state', 'negotiate'].forEach(m => {
+                const btn = document.getElementById(`river-btn-${m}`);
+                if (btn) btn.className = (m === mode)
+                    ? "p-3 rounded-xl bg-emerald-950/60 border-2 border-emerald-400 text-left transition-all"
+                    : "p-3 rounded-xl bg-slate-900 border border-slate-700 text-left transition-all";
+            });
+
+            if (mode === 'unowned') {
+                playSfx('error');
+                badge.className = "px-2.5 py-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40";
+                badge.textContent = "⚠️ 狀態：環境公害失控（無主物悲劇）";
+                score.className = "font-mono text-rose-400";
+                score.textContent = "社會運作效率：25%";
+                stream.className = "h-24 rounded-xl bg-gradient-to-r from-amber-950 via-stone-900 to-rose-950 border border-rose-500/40 flex items-center justify-around px-4 transition-all duration-500";
+                icons.textContent = "☠️ 🦠 🛢️ 🐟❌";
+                citizen.textContent = "全體人民承受公害";
+                exp.innerHTML = `<strong>【無主物困境】</strong>若自然資源屬於無主物，當有人因私利排放廢水汙染河川生態時，全體人民只能接受環境公害，社會無法有效率運作。`;
+            } else if (mode === 'state') {
+                addXP(30, 2);
+                badge.className = "px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                badge.textContent = "✅ 狀態：社會契約論 · 國家公有管理生效";
+                score.className = "font-mono text-emerald-400";
+                score.textContent = "社會運作效率：92%";
+                stream.className = "h-24 rounded-xl bg-gradient-to-r from-cyan-900 via-teal-900 to-emerald-900 border border-emerald-500/50 flex items-center justify-around px-4 transition-all duration-500";
+                icons.textContent = "⚖️ 💧 🐟 🌿 🦆";
+                citizen.textContent = "人民自由使用乾淨河川";
+                exp.innerHTML = `<strong>【社會契約論觀點（P.110）】</strong>國家的出現源於人民讓渡部分權利，追求全體利益極大化！自然資源歸於<strong>政府的財產</strong>，政府具支配、管理河川權力，透過法律規範防止環境公害對多數人民造成負面影響。`;
+            } else {
+                addXP(30, 2);
+                badge.className = "px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+                badge.textContent = "🤝 狀態：產權界定清楚 + 環保協商處理";
+                score.className = "font-mono text-cyan-400";
+                score.textContent = "社會運作效率：96%";
+                stream.className = "h-24 rounded-xl bg-gradient-to-r from-blue-900 via-cyan-900 to-indigo-900 border border-cyan-500/50 flex items-center justify-around px-4 transition-all duration-500";
+                icons.textContent = "🔄 💧 🤝 📈 🐟";
+                citizen.textContent = "透過協商與管理達成雙贏";
+                exp.innerHTML = `<strong>【所有權保障與協商（P.110）】</strong>透過落實所有權的保障與管理，可避免對多數人民造成負面影響；縱使無法完全避免，在產權界定清楚後，也可以透過<strong>協商</strong>加以處理，達成資源有效率配置！`;
+            }
+        }
+
+        /* ---------------- ISLAND 3: P.111-112 ---------------- */
+        function getIsland3HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: P.111-112 Complete Knowledge -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-amber-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-amber-400 font-bold">教材精讀 · 課本 P.111 - P.112</span>
+                                <div class="flex gap-2">
+                                    <button onclick="jumpToTextbookPage(111)" class="text-xs text-amber-300 hover:underline">P.111</button>
+                                    <button onclick="jumpToTextbookPage(112)" class="text-xs text-amber-300 hover:underline">P.112</button>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第三島：所有權四大特性與一物二賣劇場</h3>
+
+                            <div class="space-y-2.5 text-sm text-slate-200 leading-relaxed">
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <span class="font-bold text-amber-300">1. 直接支配性（圖 5-2-2）：</span>
+                                    所有權人對所有物有直接支配的權利，不需其他人同意或許可，可依自己意思占有、使用、收益與處分標的物。（例：小辰自行決定把電腦<strong>送人</strong>或<strong>賣掉</strong>）。
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <span class="font-bold text-cyan-300">2. 保護絕對性（圖 5-2-2）：</span>
+                                    所有權屬於<span class="hl-cyan">絕對權</span>，可向<strong>任何人（不特定人）</strong>主張所有權，任何人都不得干涉。（例：小辰把電腦借給朋友很久，仍可主張：「雖然電腦借給你很久，但還是我的！」）。
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <span class="font-bold text-emerald-300">3. 排他性（圖 5-2-2）：</span>
+                                    一個物品<span class="hl-yellow">只會有一個所有權</span>，不會同時存在兩個所有權（借用人不能把借來的電腦拿去賣錢）；但同一個所有權可能由數人共享，即「<strong>共有</strong>」。
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-500/50">
+                                    <span class="font-bold text-rose-300">4. 優先性（圖 5-2-3 核心考點）：</span>
+                                    除法律另有規定外，對於同一物的<span class="hl-rose">所有權會優先於債權</span>。當契約約定的權利（債權）與所有權衝突時，所有權優先債權。
+                                </div>
+
+                                <!-- 小辭典：債權相對性與物權絕對性 -->
+                                <div class="p-4 rounded-xl bg-amber-950/40 border border-amber-500/40 space-y-1.5">
+                                    <div class="font-black text-amber-300"><i class="fa-solid fa-book mr-1"></i>【小辭典】債權相對性 vs 物權絕對性</div>
+                                    <p class="text-xs sm:text-sm text-slate-200">
+                                        • <strong>債權（相對權）</strong>：僅得對<strong>特定人</strong>主張之權利，只有相對效力。小辰與元元的買賣契約僅有相對效力，不能對抗阿庭。<br>
+                                        • <strong>物權（絕對權）</strong>：得對<strong>不特定人</strong>主張之權利，屬於絕對權。阿庭受讓交付取得電腦物權後，可對抗任何人！
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 3 (Double Sale Theater & Think About It) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-amber-500/40 space-y-4">
+                            <div>
+                                <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">INTERACTIVE LAB 03 · 圖 5-2-3 劇場</span>
+                                <h4 class="text-xl font-black text-white mt-1">小辰的電腦：一物二賣時間軸推演劇場</h4>
+                                <p class="text-xs text-slate-400">*註：小辰、元元與阿庭皆具完全行為能力。請依序點擊時間軸步驟觀看權利變化：</p>
+                            </div>
+
+                            <!-- 3 Timeline Step Buttons -->
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="setLab3Step(1)" id="lab3-btn-1" class="py-2.5 px-3 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm transition-all">
+                                    Step 1. 與元元約定
+                                </button>
+                                <button onclick="setLab3Step(2)" id="lab3-btn-2" class="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs sm:text-sm transition-all">
+                                    Step 2. 交付給阿庭
+                                </button>
+                                <button onclick="setLab3Step(3)" id="lab3-btn-3" class="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs sm:text-sm transition-all">
+                                    Step 3. 元元生氣質問
+                                </button>
+                            </div>
+
+                            <!-- Visual Stage -->
+                            <div id="lab3-stage" class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                                <!-- Dynamic content updated by setLab3Step -->
+                            </div>
+
+                            <!-- Textbook P.112 "請想想看" Interactive Accordion -->
+                            <div class="space-y-2 pt-2">
+                                <div class="text-xs font-bold text-amber-300 uppercase tracking-wider"><i class="fa-solid fa-lightbulb mr-1"></i>課本 P.112【請想想看】深度思辨解析（點擊展開）</div>
+                                <details class="group bg-slate-900/90 rounded-xl border border-slate-700 p-3.5 cursor-pointer" onclick="addXP(15, 3)">
+                                    <summary class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
+                                        <span>Q1：為什麼物權須優先於債權？倘若法律不是這樣規範，對阿庭會有什麼影響？</span>
+                                        <i class="fa-solid fa-chevron-down text-amber-400 group-open:rotate-180 transition-transform"></i>
+                                    </summary>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed border-t border-slate-800 pt-2.5">
+                                        <strong>解析：</strong>因為債權契約是當事人私下約定（不具公示性，外人無從得知小辰有沒有先答應賣給元元），而物權透過「占有交付」具有公示外觀。若物權沒有優先於債權，善意買受並拿到電腦的<strong>阿庭隨時會被不知哪裡冒出來的「先簽約者（元元）」把電腦討走</strong>，這將導致沒有人敢放心買東西，嚴重破壞市場交易安全！
+                                    </p>
+                                </details>
+                                <details class="group bg-slate-900/90 rounded-xl border border-slate-700 p-3.5 cursor-pointer" onclick="addXP(15, 3)">
+                                    <summary class="text-xs sm:text-sm font-bold text-white flex items-center justify-between">
+                                        <span>Q2：日常買賣原則上雙方同意即成立，若一方反悔時有何影響？元元的權益如何保障？</span>
+                                        <i class="fa-solid fa-chevron-down text-amber-400 group-open:rotate-180 transition-transform"></i>
+                                    </summary>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed border-t border-slate-800 pt-2.5">
+                                        <strong>解析：</strong>雖然元元不能向阿庭要求拿回電腦（因債權相對性且物權優先於債權），但小辰與元元間的買賣契約有效成立，小辰反悔把電腦賣給別人導致無法履約，構成民法上的<strong>「債務不履行（給付不能）」</strong>！元元可以向<strong>小辰</strong>請求<strong>損害賠償</strong>（例如另購同款電腦的差價損失）或解除契約。
+                                    </p>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setLab3Step(step) {
+            addXP(20, 3);
+            [1, 2, 3].forEach(s => {
+                const b = document.getElementById(`lab3-btn-${s}`);
+                if (!b) return;
+                b.className = (s === step)
+                    ? "py-2.5 px-3 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm transition-all shadow-lg"
+                    : "py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm transition-all";
+            });
+
+            const stage = document.getElementById('lab3-stage');
+            if (!stage) return;
+
+            if (step === 1) {
+                stage.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 text-center py-2">
+                        <div class="p-3 rounded-xl bg-slate-900 border border-amber-500/40 flex-1">
+                            <div class="text-2xl">👩📱 元元</div>
+                            <div class="text-xs font-bold text-amber-300 mt-1">「$5000 把電腦賣我好嗎？」</div>
+                            <div class="text-[11px] text-slate-400 mt-1">取得：債權（買賣契約）</div>
+                        </div>
+                        <div class="text-xs font-mono text-amber-400 px-2">--- 債權契約成立 ---&gt;<br>(尚未交付電腦)</div>
+                        <div class="p-3 rounded-xl bg-slate-900 border border-cyan-500/50 flex-1">
+                            <div class="text-2xl">🧑💻 小辰</div>
+                            <div class="text-xs font-bold text-cyan-300 mt-1">「好呀！沒問題～」</div>
+                            <div class="text-[11px] text-emerald-400 font-bold mt-1">仍保有：電腦所有權（物權）</div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900 text-xs sm:text-sm text-slate-200">
+                        <strong>法律狀態解析：</strong>小辰與元元口頭/LINE約定以 $5,000 買賣電腦，此時雙方僅成立<strong>「買賣契約（債權行為）」</strong>。因為電腦還沒「交付」給元元，電腦的所有權仍在小辰手中！
+                    </div>
+                `;
+            } else if (step === 2) {
+                stage.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 text-center py-2">
+                        <div class="p-3 rounded-xl bg-slate-900 border border-slate-700 flex-1">
+                            <div class="text-2xl">🧑 小辰</div>
+                            <div class="text-xs font-bold text-slate-300 mt-1">收下 $6000 並交付電腦</div>
+                            <div class="text-[11px] text-rose-400 mt-1">喪失電腦所有權</div>
+                        </div>
+                        <div class="text-xs font-mono text-emerald-400 px-2">=== 銀貨兩訖交付 ===&gt;<br>(動產物權移轉生效)</div>
+                        <div class="p-3 rounded-xl bg-emerald-950/50 border-2 border-emerald-400 flex-1">
+                            <div class="text-2xl">👦💻 阿庭</div>
+                            <div class="text-xs font-bold text-emerald-300 mt-1">「我出 $6000 向你買電腦！」</div>
+                            <div class="text-[11px] text-emerald-300 font-black mt-1">🛡️ 正式取得：電腦所有權（物權）</div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs sm:text-sm text-slate-200">
+                        <strong>法律狀態解析：</strong>小辰中途反悔，將電腦賣給出價 $6,000 的阿庭，並將電腦<strong>「交付」</strong>給阿庭。依民法 §761，動產物權讓與以交付生效，此時<strong>阿庭正式取得對電腦的物權（所有權）</strong>！
+                    </div>
+                `;
+            } else {
+                stage.innerHTML = `
+                    <div class="grid grid-cols-3 gap-2 text-center py-2">
+                        <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-500/50">
+                            <div class="text-2xl">👩💢 元元</div>
+                            <div class="text-xs font-bold text-rose-300 mt-1">「你明明先答應賣我的！」</div>
+                            <div class="text-[11px] text-slate-300 mt-1">僅有債權（相對效力）</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900 border border-amber-500/40">
+                            <div class="text-2xl">🧑💦 小辰</div>
+                            <div class="text-xs font-bold text-amber-300 mt-1">對元元負違約賠償責任</div>
+                            <div class="text-[11px] text-slate-400 mt-1">債務不履行</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-emerald-950/50 border-2 border-emerald-400">
+                            <div class="text-2xl">👦💻 阿庭</div>
+                            <div class="text-xs font-bold text-emerald-300 mt-1">享有物權（絕對效力）</div>
+                            <div class="text-[11px] text-emerald-400 font-bold mt-1">✅ 物權優先於債權</div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-amber-950/50 border border-amber-500/40 text-xs sm:text-sm text-slate-200">
+                        <strong>最終結論（課本 P.112）：</strong>阿庭享有對電腦的<strong>物權</strong>，優先於元元的<strong>債權</strong>（<strong>優先性</strong>）。元元的買賣契約只有「相對效力」，不得主張比阿庭先成立買賣契約而認為阿庭無電腦所有權！
+                    </div>
+                `;
+            }
+        }
+
+        /* ---------------- ISLAND 4: P.113 ---------------- */
+        function getIsland4HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: P.113 Textbook Knowledge -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-rose-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-rose-400 font-bold">教材精讀 · 課本 P.113</span>
+                                <button onclick="jumpToTextbookPage(113)" class="text-xs text-rose-300 hover:underline"><i class="fa-solid fa-book-open mr-1"></i>對照課本原文</button>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第四島：民法第 767 條防禦堡壘島</h3>
+
+                            <div class="p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                                <div class="font-black text-rose-300 mb-1"><i class="fa-solid fa-gavel mr-1"></i>《民法》第 767 條（物上請求權）條文原文：</div>
+                                「所有人對於無權占有或侵奪其所有物者，得請求<strong>返還</strong>之。對於妨害其所有權者，得請求<strong>除去</strong>之。有妨害其所有權之虞者，得請求<strong>防止</strong>之。」
+                            </div>
+
+                            <div class="space-y-3 text-sm text-slate-200">
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-rose-300">1. 所有物返還請求權</div>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                        當他人<strong>無權占有或侵奪</strong>所有權人之所有物時，所有權人可以向其要求返還。<br>
+                                        <span class="text-amber-300">👉 課本圖 5-2-4 案例：小辰對霸占電腦的人說：「把電腦還給我！」</span>
+                                    </p>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-amber-300">2. 妨害除去請求權（去除妨害請求權）</div>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                        雖未占有所有權人之物，但其行為<strong>已妨害</strong>所有權人的權利行使時，所有權人得請求除去其妨害。<br>
+                                        <span class="text-amber-300">👉 課本圖 5-2-4 案例：「我的電腦沒辦法開機使用了，請你把它修理好！」</span>
+                                    </p>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-cyan-300">3. 妨害防止請求權（防止妨害請求權）</div>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                        所有權人對於<strong>可能會妨害（有妨害之虞）</strong>所有權行使的行為，可以<strong>預先要求</strong>他人不得從事該行為。<br>
+                                        <span class="text-amber-300">👉 課本圖 5-2-4 案例：預先立下借用規範：「⚠️ 不可更動電腦設定！」</span>
+                                    </p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+                                    <i class="fa-solid fa-scale-balanced text-cyan-400 mr-1"></i><strong>訴訟救濟：</strong>若小辰的權利被侵害，可提起訴訟請求法院命對方返還物品，或是回復損壞的物品。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 4 (767 Defense Command Center) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-rose-500/40 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">INTERACTIVE LAB 04</span>
+                                    <h4 class="text-xl font-black text-white mt-1">民法 767 號物權防禦指揮中心</h4>
+                                </div>
+                                <span id="lab4-score-tag" class="text-xs font-mono text-rose-300">防禦成功：0 / 4</span>
+                            </div>
+
+                            <p class="text-xs sm:text-sm text-slate-300">
+                                警報響起！請針對下方的產權侵害狀況，發射正確的<strong>「民法第 767 條防禦光束」</strong>：
+                            </p>
+
+                            <!-- Scenario Selector -->
+                            <div class="grid grid-cols-2 gap-2" id="lab4-case-tabs">
+                                <button onclick="loadLab4Case(0)" id="lab4-tab-0" class="p-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold text-left">狀況 1：霸占借用筆電不還</button>
+                                <button onclick="loadLab4Case(1)" id="lab4-tab-1" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold text-left">狀況 2：電腦被弄壞無法開機</button>
+                                <button onclick="loadLab4Case(2)" id="lab4-tab-2" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold text-left">狀況 3：預先規範不可改設定</button>
+                                <button onclick="loadLab4Case(3)" id="lab4-tab-3" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold text-left">狀況 4：鄰居危牆快倒向我家</button>
+                            </div>
+
+                            <!-- Active Case Display -->
+                            <div class="p-5 rounded-2xl bg-slate-950 border border-rose-500/30 space-y-4">
+                                <div id="lab4-case-desc" class="text-sm sm:text-base font-bold text-white leading-relaxed">
+                                    【狀況 1 · 課本圖 5-2-4】同學借用小辰的筆電到期後拒不歸還，無權占有該筆電，小辰生氣地說：「把電腦還給我！」請問小辰行使的是哪一項請求權？
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    <button onclick="fire767Beam('返還')" class="py-3 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-300 font-black text-xs sm:text-sm flex flex-col items-center gap-1">
+                                        <i class="fa-solid fa-hand-holding-hand text-lg"></i>
+                                        <span>所有物返還請求權</span>
+                                    </button>
+                                    <button onclick="fire767Beam('除去')" class="py-3 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-black text-xs sm:text-sm flex flex-col items-center gap-1">
+                                        <i class="fa-solid fa-screwdriver-wrench text-lg"></i>
+                                        <span>妨害除去請求權</span>
+                                    </button>
+                                    <button onclick="fire767Beam('防止')" class="py-3 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 font-black text-xs sm:text-sm flex flex-col items-center gap-1">
+                                        <i class="fa-solid fa-shield-virus text-lg"></i>
+                                        <span>妨害防止請求權</span>
+                                    </button>
+                                </div>
+
+                                <div id="lab4-feedback" class="text-xs sm:text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const lab4Cases = [
+            {
+                desc: "【狀況 1 · 課本圖 5-2-4】同學借用小辰的筆電到期後拒不歸還（無權占有），小辰要求：「把電腦還給我！」請問這是哪一種請求權？",
+                ans: "返還",
+                explain: "正確！對於「無權占有或侵奪其所有物者」，所有權人得行使【所有物返還請求權】要求返還。"
+            },
+            {
+                desc: "【狀況 2 · 課本圖 5-2-4】他人雖未霸占電腦，但害小辰的電腦無法開機使用（已妨害所有權行使），小辰要求對方修理好或排除妨害。這是哪一種請求權？",
+                ans: "除去",
+                explain: "正確！雖未占有所有物，但行為「已經妨害」所有權行使時，得行使【妨害除去請求權】（去除妨害請求權）。"
+            },
+            {
+                desc: "【狀況 3 · 課本圖 5-2-4】小辰出借電腦前，為避免系統被亂改（有妨害之虞），預先立下借用規範：「不可更動電腦設定！」這是哪一種請求權？",
+                ans: "防止",
+                explain: "正確！對於「可能會妨害（有妨害之虞）」所有權行使的行為，可預先要求不得從事，屬於【妨害防止請求權】。"
+            },
+            {
+                desc: "【狀況 4 · 延伸生活實例】隔壁工地鷹架搖搖欲墜，隨時可能倒塌砸毀你家的屋頂（尚未倒塌但有妨害之虞），你要求工地立即加固。這是哪一種請求權？",
+                ans: "防止",
+                explain: "正確！因為鷹架尚未砸下來，但「有妨害所有權之虞」，故可預先行使【妨害防止請求權】要求加固預防！"
+            }
+        ];
+        let currentLab4Case = 0;
+        let solvedLab4Set = new Set();
+
+        function loadLab4Case(idx) {
+            playSfx('click');
+            currentLab4Case = idx;
+            [0, 1, 2, 3].forEach(i => {
+                const btn = document.getElementById(`lab4-tab-${i}`);
+                if (btn) btn.className = (i === idx)
+                    ? "p-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold text-left"
+                    : "p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold text-left";
+            });
+            document.getElementById('lab4-case-desc').textContent = lab4Cases[idx].desc;
+            document.getElementById('lab4-feedback').innerHTML = '';
+        }
+
+        function fire767Beam(choice) {
+            playSfx('laser');
+            const c = lab4Cases[currentLab4Case];
+            const fb = document.getElementById('lab4-feedback');
+            if (choice === c.ans) {
+                solvedLab4Set.add(currentLab4Case);
+                document.getElementById('lab4-score-tag').textContent = `防禦成功：${solvedLab4Set.size} / 4`;
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-200"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>${c.explain}</div>`;
+                addXP(25, solvedLab4Set.size >= 2 ? 4 : null);
+            } else {
+                playSfx('error');
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>光束偏離！請判斷：物品是「被無權占走（返還）」、「已經受妨害（除去）」還是「未來有可能受妨害（防止）」？</div>`;
+            }
+        }
+
+        /* ---------------- ISLAND 5: P.114 ---------------- */
+        function getIsland5HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: P.114 Complete Knowledge -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-purple-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-purple-400 font-bold">教材精讀 · 課本 P.114</span>
+                                <button onclick="jumpToTextbookPage(114)" class="text-xs text-purple-300 hover:underline"><i class="fa-solid fa-book-open mr-1"></i>對照課本原文</button>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第五島：物權法定與產權移轉交易所</h3>
+
+                            <div class="space-y-3 text-sm text-slate-200 leading-relaxed">
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-purple-300 mb-1">歷史演進：從絕對所有權到所有權的限制</div>
+                                    古羅馬採取「絕對所有權原則」（不干涉個人的使用方式與目的）。隨著資本主義社會興起，<span class="hl-yellow">對所有權的限制成為新趨勢</span>，避免權利過度擴張，以保障社會大眾的權益。
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-cyan-300 mb-1">限制 1：物權法定主義（不能自行創設）</div>
+                                    物權優先於債權，又具保護絕對性，因此保障須考慮周全，不能由當事人自行約定。民法規定：「<span class="hl-cyan">物權除依法律或習慣外，不得創設</span>」（民法 §757），稱為<strong>「物權法定主義」</strong>。
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-amber-300 mb-1">限制 2：不動產登記生效主義（必須要登記）</div>
+                                    相較於動產，不動產市場價值高，因此民法規定不動產的取得、變更、喪失等必須依法登記，且<span class="hl-rose">登記後才產生所有權</span>，藉以保障不動產之交易安全。<br>
+                                    <span class="text-xs text-amber-200">👉 課本案例：陳太太要將房屋賣給林先生，在簽訂契約後，雙方必須到<strong>地政事務所</strong>進行移轉登記，才能正式將房屋所有權轉移給林先生。</span>
+                                </div>
+
+                                <!-- 小辭典：所有權移轉 -->
+                                <div class="p-4 rounded-xl bg-purple-950/50 border border-purple-500/40 space-y-2">
+                                    <div class="font-black text-purple-300"><i class="fa-solid fa-book mr-1"></i>【課本小辭典】所有權移轉生效要件</div>
+                                    <p class="text-xs sm:text-sm text-slate-200">
+                                        1. <strong>不動產登記生效要件主義（民法第 758 條第 1 項）</strong>：<br>
+                                        「不動產物權行為，<span class="hl-rose">非經登記，不生效力</span>」，須經地政機關辦理土地登記簿上之登記，始生效力（特別生效要件）。<br>
+                                        2. <strong>動產交付移轉所有權（民法第 761 條第 1 項）</strong>：<br>
+                                        「動產物權之讓與，<span class="hl-cyan">非將動產交付，不生效力</span>。」交付（占有的移轉）為動產物權行為的公示方法。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 5 (Property Transfer Exchange) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-purple-500/40 space-y-5">
+                            <div>
+                                <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">INTERACTIVE LAB 05</span>
+                                <h4 class="text-xl font-black text-white mt-1">產權移轉過戶模擬交易所（§758 登記 vs §761 交付）</h4>
+                                <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                    請親自推進下方兩筆交易的進度，觀察<strong>「買賣契約簽訂時」</strong>與<strong>「交付/登記時」</strong>所有權歸屬的關鍵差異！
+                                </p>
+                            </div>
+
+                            <!-- Counter A: Real Estate (Mrs. Chen -> Mr. Lin) -->
+                            <div class="p-4 rounded-2xl bg-slate-950 border border-purple-500/40 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-black text-purple-300"><i class="fa-solid fa-house-chimney mr-1"></i>櫃檯 A：陳太太賣房屋給林先生（不動產 · 民法 §758）</span>
+                                    <span id="house-owner-badge" class="text-xs px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">目前房屋所有權人：陳太太</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setHouseStep(1)" id="house-step-1" class="p-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold">① 簽訂房屋買賣契約</button>
+                                    <button onclick="setHouseStep(2)" id="house-step-2" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold">② 交屋給鑰匙入住</button>
+                                    <button onclick="setHouseStep(3)" id="house-step-3" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold">③ 地政事務所移轉登記</button>
+                                </div>
+                                <div id="house-step-explain" class="text-xs sm:text-sm text-slate-200 p-3 rounded-xl bg-slate-900">
+                                    <strong>步驟 ① 解析：</strong>陳太太與林先生簽妥買賣契約並付頭期款。注意！此時僅成立「債權契約」，還沒去地政事務所登記，<strong>房屋所有權人仍然是陳太太</strong>！
+                                </div>
+                            </div>
+
+                            <!-- Counter B: Movable Smartphone (Buyer & Seller) -->
+                            <div class="p-4 rounded-2xl bg-slate-950 border border-cyan-500/40 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-black text-cyan-300"><i class="fa-solid fa-mobile-screen mr-1"></i>櫃檯 B：購買全新智慧型手機（動產 · 民法 §761）</span>
+                                    <span id="phone-owner-badge" class="text-xs px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">目前手機所有權人：通訊行老闆</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="setPhoneStep(1)" id="phone-step-1" class="p-2.5 rounded-xl bg-cyan-600 text-white text-xs font-bold">① 線上預訂達成買賣合意</button>
+                                    <button onclick="setPhoneStep(2)" id="phone-step-2" class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold">② 店員將手機交付買方手中</button>
+                                </div>
+                                <div id="phone-step-explain" class="text-xs sm:text-sm text-slate-200 p-3 rounded-xl bg-slate-900">
+                                    <strong>步驟 ① 解析：</strong>雙方達成買賣合意（債權成立），但依民法第 761 條第 1 項「動產物權之讓與，非將動產交付，不生效力」，此時手機尚未交付，<strong>所有權人仍是老闆</strong>。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setHouseStep(step) {
+            addXP(20, 5);
+            [1, 2, 3].forEach(s => {
+                const b = document.getElementById(`house-step-${s}`);
+                if (b) b.className = (s === step)
+                    ? "p-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-md"
+                    : "p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold";
+            });
+            const badge = document.getElementById('house-owner-badge');
+            const exp = document.getElementById('house-step-explain');
+            if (step === 1) {
+                badge.className = "text-xs px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold";
+                badge.textContent = "目前房屋所有權人：陳太太";
+                exp.innerHTML = `<strong>步驟 ① 解析：</strong>簽訂買賣契約僅產生「債權效力」，尚未辦理地政登記，<strong>房屋所有權人仍是陳太太</strong>。`;
+            } else if (step === 2) {
+                badge.className = "text-xs px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold";
+                badge.textContent = "⚠️ 陷阱注意！所有權人仍是：陳太太";
+                exp.innerHTML = `<strong>步驟 ② 必考陷阱解析：</strong>就算陳太太已經把房屋鑰匙交給林先生入住（占有移轉），但因為<strong>房屋是不動產</strong>，依民法 §758「非經登記，不生效力」，沒去地政事務所登記前，<strong>林先生還沒有取得房屋所有權</strong>！`;
+            } else {
+                badge.className = "text-xs px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold";
+                badge.textContent = "✅ 正式取得！房屋所有權人：林先生";
+                exp.innerHTML = `<strong>步驟 ③ 解析（課本 P.114）：</strong>雙方到<strong>地政事務所</strong>完成土地登記簿上的移轉登記！依「不動產登記生效要件主義」（民法 §758），林先生此刻正式取得房屋所有權！`;
+            }
+        }
+
+        function setPhoneStep(step) {
+            addXP(20, 5);
+            [1, 2].forEach(s => {
+                const b = document.getElementById(`phone-step-${s}`);
+                if (b) b.className = (s === step)
+                    ? "p-2.5 rounded-xl bg-cyan-600 text-white text-xs font-bold shadow-md"
+                    : "p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold";
+            });
+            const badge = document.getElementById('phone-owner-badge');
+            const exp = document.getElementById('phone-step-explain');
+            if (step === 1) {
+                badge.className = "text-xs px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold";
+                badge.textContent = "目前手機所有權人：通訊行老闆";
+                exp.innerHTML = `<strong>步驟 ① 解析：</strong>僅成立買賣契約，尚未交付動產，所有權人仍是通訊行老闆。`;
+            } else {
+                badge.className = "text-xs px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold";
+                badge.textContent = "✅ 正式取得！手機所有權人：買方";
+                exp.innerHTML = `<strong>步驟 ② 解析（課本 P.114）：</strong>店員將手機<strong>「交付（占有的移轉）」</strong>到買方手中，依民法 §761 第 1 項，買方立刻取得手機動產所有權，不需辦理登記！`;
+            }
+        }
+
+        /* ---------------- ISLAND 6: P.115 ---------------- */
+        function getIsland6HTML() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: P.115 Complete Knowledge -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 space-y-4 border-l-4 border-blue-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-mono text-blue-400 font-bold">教材精讀 · 課本 P.115</span>
+                                <button onclick="jumpToTextbookPage(115)" class="text-xs text-blue-300 hover:underline"><i class="fa-solid fa-book-open mr-1"></i>對照課本原文</button>
+                            </div>
+                            <h3 class="text-2xl font-black text-white">第六島：公益調和與開源未來公民論壇</h3>
+
+                            <div class="space-y-3 text-sm text-slate-200 leading-relaxed">
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-cyan-300 mb-1">1. 有形物權與公共利益的調和：臺灣「騎樓」案例</div>
+                                    現代社會中人與人互動緊密，若完全保障所有權，有時會影響公共利益，此時需要<span class="hl-yellow">限制部分所有權以謀求社會的發展</span>。像是在臺灣，氣候炎熱潮濕常有雨，在房屋建築上就有了<strong>「騎樓」</strong>的設計，各戶人家將一樓房屋內縮，保留空間以供行人行走（所有權雖屬屋主，但須供公眾通行，不得任意封閉堆放私物阻礙行人）。
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700">
+                                    <div class="font-bold text-amber-300 mb-1">2. 無形財產：智慧財產權 vs 開放原始碼 vs 合理使用</div>
+                                    <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+                                        <li><strong>智慧財產權保障</strong>：保障創作者的權益、肯定智慧的成果並更進一步鼓勵創作。</li>
+                                        <li><strong>反思與開放原始碼運動</strong>：有人質疑智慧財產權的保障反而減緩創作的發展，且並非所有人都是為了獲利才願意發明與創造。像是<strong>「開放原始碼（Open Source）」</strong>運動便多少帶有反著作權的色彩，追求真正的創作自由。</li>
+                                        <li><strong>合理使用權</strong>：因此法律也應保障一定的<span class="hl-cyan">合理使用權</span>，以同時兼顧創作者的權益與人類智慧成果的發展。</li>
+                                    </ul>
+                                </div>
+
+                                <!-- 小辭典：開放原始碼 -->
+                                <div class="p-4 rounded-xl bg-blue-950/50 border border-blue-500/40">
+                                    <div class="font-black text-blue-300 mb-1"><i class="fa-solid fa-code mr-1"></i>【課本小辭典】開放原始碼（Open Source）</div>
+                                    <p class="text-xs sm:text-sm text-slate-200">
+                                        原始碼就是在電腦等資訊設備上所使用的應用軟體之原始程式碼。這在商業軟體上，多是無法被使用者所檢視及改寫。開放原始碼運動強調<span class="hl-cyan">資訊的自由流通與共享，以對抗商業公司的壟斷</span>。
+                                    </p>
+                                </div>
+
+                                <!-- 公民論壇 -->
+                                <div class="p-4 rounded-xl bg-slate-900 border border-amber-500/40 space-y-1.5">
+                                    <div class="font-black text-amber-300"><i class="fa-solid fa-comments mr-1"></i>【公民論壇】智慧財產權是保障還是限制？</div>
+                                    <p class="text-xs text-slate-300">
+                                        我國《著作權法》第 1 條規定：「為<strong>保障著作人著作權益，調和社會公共利益，促進國家文化發展</strong>，特制訂本法。」若沒有過去知識的累積，可能無法造成現今的進步；但若只著眼於公共利益，人們恐失去創作、發明的動力。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Lab 6 (Public Interest & IP Harmony Balance) -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <div class="glass-card rounded-2xl p-6 border border-blue-500/40 space-y-5">
+                            <div>
+                                <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">INTERACTIVE LAB 06</span>
+                                <h4 class="text-xl font-black text-white mt-1">私有財產 vs 公共利益 · 光譜調和天平</h4>
+                                <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                                    調整下方滑桿，探索《著作權法》第 1 條如何在「保障著作人私益」與「社會文化傳播公益」之間取得黃金平衡點！
+                                </p>
+                            </div>
+
+                            <!-- Slider Control -->
+                            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-cyan-300">🌐 完全共享無保護 (0%)</span>
+                                    <span class="text-emerald-300">⚖️ 合理使用調和 (50%)</span>
+                                    <span class="text-rose-300">🔒 絕對壟斷禁止引用 (100%)</span>
+                                </div>
+                                <input type="range" id="ip-slider" min="0" max="100" value="50" oninput="updateIPSlider(this.value)" class="w-full accent-cyan-400 cursor-pointer h-2 bg-slate-800 rounded-lg">
+
+                                <div class="grid grid-cols-2 gap-3 text-center">
+                                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                                        <div class="text-xs text-slate-400">創作者研發獲利動力</div>
+                                        <div id="ip-creator-score" class="text-xl font-mono font-black text-amber-400 mt-1">85%</div>
+                                    </div>
+                                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                                        <div class="text-xs text-slate-400">知識傳播與文化累積</div>
+                                        <div id="ip-public-score" class="text-xl font-mono font-black text-cyan-400 mt-1">88%</div>
+                                    </div>
+                                </div>
+
+                                <div id="ip-slider-analysis" class="p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                                    <strong>⚖️【黃金調和區間（著作權法第1條精神）】：</strong>保障創作者著作權益（鼓勵精神創作活動），同時規定<strong>「合理使用權」</strong>（如教學引用、非營利研究）並支持<strong>開放原始碼（Open Source）</strong>理念，兼顧創作誘因與人類智慧成果發展！
+                                </div>
+                            </div>
+
+                            <!-- Arcade Walkway Quick Check -->
+                            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-3">
+                                <div class="text-xs sm:text-sm font-bold text-white">
+                                    🌧️ 【台灣騎樓情境判斷】一樓屋主阿明說：「騎樓土地權狀是我的所有權，我想用鐵捲門把騎樓完全封起來當自家客廳，不准路人走！」請問阿明的主張合法嗎？
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="checkArcadeAns(false)" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200">
+                                        A. 合法，所有權具排他性與絕對性
+                                    </button>
+                                    <button onclick="checkArcadeAns(true)" class="flex-1 py-2 px-3 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-400/50 text-xs font-bold text-blue-200">
+                                        B. 不合法，為維護公共利益得依法限制部分所有權
+                                    </button>
+                                </div>
+                                <div id="arcade-feedback" class="text-xs text-slate-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateIPSlider(val) {
+            const v = parseInt(val);
+            const creatorEl = document.getElementById('ip-creator-score');
+            const publicEl = document.getElementById('ip-public-score');
+            const analysisEl = document.getElementById('ip-slider-analysis');
+
+            if (v < 30) {
+                creatorEl.textContent = `${25 + v}% (偏低)`;
+                creatorEl.className = "text-xl font-mono font-black text-rose-400 mt-1";
+                publicEl.textContent = `95% (極高)`;
+                publicEl.className = "text-xl font-mono font-black text-cyan-400 mt-1";
+                analysisEl.className = "p-3.5 rounded-xl bg-amber-950/50 border border-amber-500/40 text-xs sm:text-sm text-slate-200 leading-relaxed";
+                analysisEl.innerHTML = `<strong>⚠️【過度偏向公共利益（保護不足）】：</strong>如課本 P.115 公民論壇所述：「若只著眼於公共利益，人們恐失去創作、發明的動力。」高成本研發若毫無保障，創作者將難以維持生計。`;
+            } else if (v > 70) {
+                creatorEl.textContent = `95% (極高)`;
+                creatorEl.className = "text-xl font-mono font-black text-amber-400 mt-1";
+                publicEl.textContent = `${115 - v}% (受阻)`;
+                publicEl.className = "text-xl font-mono font-black text-rose-400 mt-1";
+                analysisEl.className = "p-3.5 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs sm:text-sm text-slate-200 leading-relaxed";
+                analysisEl.innerHTML = `<strong>⚠️【過度保護與商業壟斷】：</strong>若完全禁止他人合理使用或檢視，將造成資訊壟斷並減緩創作與文化傳播發展（這也是為何會有「開放原始碼運動」挺身對抗商業壟斷）。`;
+            } else {
+                addXP(15, 6);
+                creatorEl.textContent = `86% (均衡)`;
+                creatorEl.className = "text-xl font-mono font-black text-emerald-400 mt-1";
+                publicEl.textContent = `88% (均衡)`;
+                publicEl.className = "text-xl font-mono font-black text-emerald-400 mt-1";
+                analysisEl.className = "p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-xs sm:text-sm text-slate-200 leading-relaxed";
+                analysisEl.innerHTML = `<strong>⚖️【黃金調和區間（著作權法第1條精神）】：</strong>同時保障著作人權益並規範「合理使用權」，兼顧創作者激勵與社會文化知識的累積傳播！`;
+            }
+        }
+
+        function checkArcadeAns(isCorrect) {
+            const fb = document.getElementById('arcade-feedback');
+            if (isCorrect) {
+                addXP(25, 6);
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-200"><i class="fa-solid fa-circle-check mr-1"></i><strong>回答正確！</strong>台灣氣候多雨炎熱，房屋建築「騎樓」設計將一樓內縮供行人通行，正是為了調和公共利益而對私有財產權所做的合理限制（課本 P.115）。</div>`;
+            } else {
+                playSfx('error');
+                fb.innerHTML = `<div class="p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-200"><i class="fa-solid fa-circle-xmark mr-1"></i><strong>不正確喔！</strong>所有權並非絕對不受限制，騎樓依法須保留供公眾行人通行，不得封閉私用。</div>`;
+            }
+        }
+
+        /**************************************************************
+         * 7. TEXTBOOK PAGE-BY-PAGE VERBATIM READER (P.109 - P.115)
+         **************************************************************/
+        const TEXTBOOK_PAGES = {
+            109: {
+                title: "P.109 · 第二節：所有權的物權特性（前言與「物」的小辭典）",
+                islandId: 1,
+                html: `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-cyan-950/40 border border-cyan-500/40">
+                            <div class="text-xs font-mono text-cyan-300 mb-1">課本引言與三大問題</div>
+                            <p class="text-base font-bold text-white">什麼是所有權？所有權有何特性？法律如何保障與限制所有權？</p>
+                            <p class="text-sm text-slate-200 mt-2 leading-relaxed">
+                                財產權保障人民可依據財產的狀態，自由使用、收益及處分的權利，其目的在於確保人民可持有維繫個人生存及自由發展人格之生活資源。我國法律如何規範所有權的物權特性、保障與限制？
+                            </p>
+                        </div>
+                        <div class="space-y-3 text-sm sm:text-base text-slate-200 leading-relaxed">
+                            <p>從古羅馬時期就奠定了「<span class="hl-yellow">私有財產神聖不可侵犯</span>」原則，以維護私有財產權。在工業革命後，工人領取薪資以維持生活條件，因此，私有財產權的保障成為人們勤奮工作的動力之一，同時也促使資源運作更有效率。</p>
+                            <p>民法以「<span class="hl-cyan">人</span>」為權利主體、以「<span class="hl-cyan">物</span>」為權利客體。權利客體是指受權利主體支配之各項權利的對象或內容，不僅包括「物」，也包括<span class="hl-yellow">專利權、著作權等精神產物</span>。</p>
+                            <p><strong>物權</strong>是指權利主體對物直接支配、享受其利益，並具有排他性的權利，而<strong>所有權</strong>為物權的一種，以下將探討物權中「所有權」的特性，以及法律對所有權有何保障與限制。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border-l-4 border-amber-400">
+                            <div class="font-black text-amber-300 mb-1">📖 小辭典：物</div>
+                            <p class="text-sm text-slate-200 leading-relaxed">
+                                民法上的「物」區分為<strong>不動產</strong>及<strong>動產</strong>。不動產指土地及附著在土地上之定著物（例如：房子）；動產則是不動產以外的東西，例如：手機、衣服與汽機車等。從法律的觀點，<span class="hl-rose">寵物也是「物」，屬於動產的一種</span>。
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            110: {
+                title: "P.110 · 什麼是所有權？（國家保障與減少對他人的負面影響）",
+                islandId: 2,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40">
+                            <h4 class="text-lg font-black text-white">什麼是所有權？</h4>
+                            <p class="mt-1">所有權，是指所有權人可以自由的<span class="hl-cyan">使用、收益、處分</span>所有物，並且<span class="hl-yellow">排除他人干涉</span>的權利。</p>
+                        </div>
+                        <h5 class="font-black text-cyan-300 text-base">(一) 國家為什麼需要保障所有權？</h5>
+                        <p>保障人民私有財產的所有權是<strong>現代市場經濟制度的核心</strong>，當物的所有權界定清楚後，人們可以透過交易來分配各自擁有的物品，來達成彼此最大利益並滿足雙方需求。</p>
+                        <p>現代民主國家透過憲法與法律的規定，使得所有權獲得保障，我國<strong>《憲法》第 15 條</strong>規定人民之財產權，應予保障。然而，為了維護公共利益，國家必須藉由正當程序對所有權加以限制，因此，<span class="hl-rose">所有權並非受到絕對的保護</span>。</p>
+
+                        <h5 class="font-black text-emerald-300 text-base">(二) 所有權保障如何減少對他人的負面影響？</h5>
+                        <p>若自然資源屬於無主物，當有人因為私利而排放廢水進而汙染河川生態時，全體人民只能接受環境公害。然而，從<span class="hl-cyan">社會契約論</span>的觀點出發，國家的出現就是源於人民讓渡部分權利，進而追求全體的利益極大化，因此自然資源歸於<strong>政府的財產</strong>，其具有支配、管理河川的權力，供人民日常生活自由使用之餘，透過法律規範來防止環境公害對多數人民造成影響。</p>
+                        <p>透過落實所有權的保障與管理，可以避免對多數人民造成負面影響，縱使無法完全避免，也可以透過<span class="hl-yellow">協商</span>加以處理。</p>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm">
+                            <strong>🖼️ 圖 5-2-1 養豬場排放的廢水：</strong>臺灣豬隻養殖業過去曾大量排放廢水汙染環境，若國家未落實有效管理，會導致社會無法有效率地運作。
+                        </div>
+                    </div>
+                `
+            },
+            111: {
+                title: "P.111 · (三) 所有權的特性：直接支配性、保護絕對性、排他性",
+                islandId: 3,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <p>依據民法的規範，所有權具有以下四種特性（本頁介紹前三種）：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-xl bg-slate-900 border border-cyan-500/40">
+                                <div class="font-black text-cyan-300 mb-2">1. 直接支配性</div>
+                                <p class="text-sm">所有權人對所有物有直接支配的權利，換言之，不需要其他人的同意或許可，所有權人可依照自己的意思占有、使用、收益與處分標的物。</p>
+                                <div class="mt-3 p-2.5 rounded-lg bg-slate-950 text-xs text-amber-300">
+                                    💻 圖 5-2-2：小辰自行決定如何使用電腦（送人／賣掉）。
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900 border border-amber-500/40">
+                                <div class="font-black text-amber-300 mb-2">2. 保護絕對性</div>
+                                <p class="text-sm">所有權屬於絕對權，意即所有權人可以向任何人主張所有權，任何人都不得干涉他人的所有權行使。</p>
+                                <div class="mt-3 p-2.5 rounded-lg bg-slate-950 text-xs text-amber-300">
+                                    💻 圖 5-2-2：可主張物品的所有（「雖然電腦借給你很久，但還是我的！」）。
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900 border border-emerald-500/40">
+                                <div class="font-black text-emerald-300 mb-2">3. 排他性</div>
+                                <p class="text-sm">一個物品只會有一個所有權，不會同時存在兩個所有權，但同一個所有權可能由數人共享，即「共有」。</p>
+                                <div class="mt-3 p-2.5 rounded-lg bg-slate-950 text-xs text-amber-300">
+                                    💻 圖 5-2-2：排除他人所有權主張（借用電腦的人不能把電腦賣掉換錢）。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            112: {
+                title: "P.112 · 所有權的特性：4. 優先性（小辰、元元與阿庭買電腦案）",
+                islandId: 3,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <div class="p-4 rounded-xl bg-amber-950/40 border border-amber-500/40">
+                            <h4 class="font-black text-amber-300 text-lg">4. 優先性</h4>
+                            <p class="mt-1">所有權具有優先性，指除法律另有規定外，對於同一物的<span class="hl-rose">所有權會優先於債權</span>。相較於契約，如果一個物品其契約約定的權利（債權）與所有權衝突時，所有權優先債權。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700">
+                            <div class="font-bold text-cyan-300 mb-1">📌 課本案例＆圖 5-2-3（小辰、元元與阿庭具完全行為能力）</div>
+                            <p class="text-sm">
+                                小辰原本與元元約定要以 5 千元的價格把電腦賣給元元，卻中途反悔將電腦賣給出價 6 千元的阿庭。小辰將電腦<strong>交付</strong>給阿庭後，此時阿庭享有對電腦的<strong>物權</strong>，優先於元元的<strong>債權</strong>，元元不得主張比阿庭先成立買賣契約，而認為阿庭無電腦所有權。
+                            </p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border-l-4 border-cyan-400">
+                            <div class="font-black text-cyan-300 mb-1">📖 小辭典：債權相對性與物權絕對性</div>
+                            <p class="text-sm">
+                                <strong>債權</strong>是僅得對特定人主張之權利，只有<strong>相對效力</strong>；反之，<strong>物權</strong>則是得對不特定人主張之權利，屬於<strong>絕對權</strong>。在圖 5-2-3 的案例中，小辰、元元雙方成立買賣契約，由於是債權契約，只有相對效力，不能對抗優先取得電腦所有權的阿庭。
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            113: {
+                title: "P.113 · (四) 所有權的保障：民法第 767 條三大請求權",
+                islandId: 4,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <p>權利如果被侵害，必須有救濟方式，為了保障上述物權的特性，<strong>《民法》第 767 條</strong>規定：「所有人對於無權占有或侵奪其所有物者，得請求返還之。對於妨害其所有權者，得請求除去之。有妨害其所有權之虞者，得請求防止之。」</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-xl bg-slate-900 border border-rose-500/40">
+                                <div class="font-black text-rose-300 mb-1">1. 所有物返還請求權</div>
+                                <p class="text-sm">當他人無權占有或侵奪所有權人之所有物時，所有權人可以向其要求返還。</p>
+                                <div class="mt-2 text-xs text-amber-300">圖 5-2-4：「把電腦還給我！」</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900 border border-amber-500/40">
+                                <div class="font-black text-amber-300 mb-1">2. 妨害除去請求權</div>
+                                <p class="text-sm">雖未占有所有權人之物，但其行為已妨害所有權人的權利行使時，所有權人得請求除去其妨害。</p>
+                                <div class="mt-2 text-xs text-amber-300">圖 5-2-4：「我的電腦沒辦法開機使用了，請你把它修理好！」</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900 border border-cyan-500/40">
+                                <div class="font-black text-cyan-300 mb-1">3. 妨害防止請求權</div>
+                                <p class="text-sm">所有權人對於可能會妨害所有權行使的行為，可以預先要求他人不得從事該行為。</p>
+                                <div class="mt-2 text-xs text-amber-300">圖 5-2-4：借用規範「不可更動電腦設定」。</div>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+                            ※ 若小辰的權利被侵害，可提起訴訟請求法院命對方返還物品，或是回復損壞的物品。
+                        </div>
+                    </div>
+                `
+            },
+            114: {
+                title: "P.114 · 所有權保障的限制（物權法定主義、不動產登記 vs 動產交付）",
+                islandId: 5,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <p>古羅馬採取絕對所有權原則，意即不干涉個人的使用方式與目的。而隨著資本主義社會的興起，對所有權的限制成為新趨勢，避免權利過度擴張，以保障社會大眾的權益。我國民法對所有權的限制，可分為以下兩點說明：</p>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-purple-500/40 space-y-2">
+                            <div class="font-black text-purple-300">1. 物權必須由法律規定，不能自行創設（物權法定主義）</div>
+                            <p class="text-sm">物權優先於債權，又具有保護絕對性，因此，對於物權的保障必須要考慮周全，不能由當事人自行約定。因此民法規定「物權除依法律或習慣外，不得創設」，此概念又被稱為「<strong>物權法定主義</strong>」。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 space-y-2">
+                            <div class="font-black text-cyan-300">2. 不動產物權必須要登記（不動產登記生效主義）</div>
+                            <p class="text-sm">相較於動產，由於不動產的市場價值高，因此民法規定不動產的取得、變更、喪失等必須依法登記，且登記後才產生所有權，藉以保障不動產之交易安全，此概念又被稱為「<strong>不動產登記生效主義</strong>」。</p>
+                            <p class="text-xs text-amber-300">🏠 案例：陳太太要將房屋賣給林先生，在簽訂契約後，雙方必須到地政事務所進行移轉登記，才能正式將房屋所有權轉移給林先生。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border-l-4 border-amber-400 space-y-2">
+                            <div class="font-black text-amber-300">📖 小辭典：所有權移轉</div>
+                            <p class="text-sm"><strong>1. 不動產登記生效要件主義：</strong>不動產物權行為，非經登記，不生效力（民法第 758 條第 1 項），反面解釋，即須經登記，始生效力。此處所稱「登記」，專指地政機關所辦理，土地登記簿上之登記。</p>
+                            <p class="text-sm"><strong>2. 動產交付移轉所有權：</strong>「動產物權之讓與，非將動產交付，不生效力。」（民法第 761 條第 1 項）交付，即占有的移轉，為動產物權行為的公示方法。</p>
+                        </div>
+                    </div>
+                `
+            },
+            115: {
+                title: "P.115 · (二) 私有財產與公共利益的調和（騎樓、智慧財產權與開放原始碼）",
+                islandId: 6,
+                html: `
+                    <div class="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
+                        <p>現代社會中，人與人的互動更加緊密，若完全地保障所有權，有時會影響公共利益，此時需要限制部分所有權以謀求社會的發展。像是在臺灣，氣候炎熱潮濕常有雨，在房屋建築上就有了「<span class="hl-yellow">騎樓</span>」的設計，各戶人家將一樓房屋內縮，保留空間以供行人行走。</p>
+                        <p>相對於有形的物權，民法也保障了無形的財產：<span class="hl-cyan">智慧財產權</span>，保障創作者的權益、肯定智慧的成果並更進一步鼓勵創作。但漸漸的，有人開始質疑智慧財產權的保障反而減緩創作的發展，且並非所有人都是為了獲利才願意發明與創造。像是<span class="hl-cyan">開放原始碼</span>的運動便多少帶有反著作權的色彩，追求真正的創作自由。因此法律也應保障一定的<span class="hl-yellow">合理使用權</span>，以同時兼顧創作者的權益與人類智慧成果的發展。</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-xl bg-slate-900 border-l-4 border-cyan-400">
+                                <div class="font-black text-cyan-300 mb-1">📖 小辭典：開放原始碼</div>
+                                <p class="text-xs sm:text-sm">原始碼就是在電腦等資訊設備上所使用的應用軟體之原始程式碼。這在商業軟體上，多是無法被使用者所檢視及改寫。開放原始碼運動強調資訊的自由流通與共享，以對抗商業公司的壟斷。</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-900 border-l-4 border-amber-400">
+                                <div class="font-black text-amber-300 mb-1">💬 公民論壇：智慧財產權是保障還是限制？</div>
+                                <p class="text-xs sm:text-sm">我國《著作權法》第 1 條規定：「為保障著作人著作權益，調和社會公共利益，促進國家文化發展，特制訂本法。」若沒有過去知識的累積，可能無法造成現今的進步；但若只著眼於公共利益，人們恐失去創作、發明的動力。</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        function renderTextbookReader(page) {
+            gameState.activeTextbookPage = page;
+            const btnContainer = document.getElementById('textbook-page-buttons');
+            btnContainer.innerHTML = [109, 110, 111, 112, 113, 114, 115].map(p => `
+                <button onclick="renderTextbookReader(${p}); playSfx('click');" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                    p === page
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-700'
+                }">P.${p}</button>
+            `).join('');
+
+            const data = TEXTBOOK_PAGES[page];
+            const viewer = document.getElementById('textbook-page-viewer');
+            viewer.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-800">
+                    <h3 class="text-lg sm:text-xl font-black text-amber-300">${data.title}</h3>
+                    <button onclick="openIslandDetail(${data.islandId})" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold shrink-0">
+                        <i class="fa-solid fa-flask mr-1"></i>前往對應島嶼互動實驗室（第 ${data.islandId} 島）
+                    </button>
+                </div>
+                ${data.html}
+                <div class="flex items-center justify-between pt-6 mt-6 border-t border-slate-800">
+                    <button onclick="if(${page}>109) renderTextbookReader(${page - 1})" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold ${page === 109 ? 'opacity-40 pointer-events-none' : 'text-slate-200'}">
+                        <i class="fa-solid fa-arrow-left mr-1"></i>上一頁
+                    </button>
+                    <span class="text-xs font-mono text-slate-400">Page ${page} of 109-115</span>
+                    <button onclick="if(${page}<115) renderTextbookReader(${page + 1})" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold ${page === 115 ? 'opacity-40 pointer-events-none' : 'text-cyan-300'}">
+                        下一頁<i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function jumpToTextbookPage(page) {
+            gameState.activeTextbookPage = page;
+            switchMainView('textbook');
+        }
+
+        /**************************************************************
+         * 8. METAVERSE LAW ARENA (10 COMPREHENSIVE QUIZ QUESTIONS)
+         **************************************************************/
+        const QUIZ_DATA = [
+            {
+                q: "1. 【P.109 物的小辭典】小華飼養了一隻可愛的貴賓狗，並買了一支新款智慧型手機與一棟透天厝。從我國《民法》的觀點來看，下列敘述何者正確？",
+                options: [
+                    "貴賓狗具有生命，在民法上屬於「權利主體」而非「物」",
+                    "貴賓狗與智慧型手機在民法上皆屬於「動產」，透天厝則屬於「不動產」",
+                    "智慧型手機屬於動產，但貴賓狗與透天厝皆屬於不動產",
+                    "專利權與著作權因為摸不到，所以不屬於民法上的權利客體"
+                ],
+                ans: 1,
+                exp: "課本 P.109 小辭典明確指出：民法以「人」為權利主體、「物」為權利客體；從法律觀點，寵物也是「物」，屬於「動產」的一種！透天厝為附著於土地之定著物，屬不動產。"
+            },
+            {
+                q: "2. 【P.110 外部性與社會契約論】早期臺灣部分養豬場任意將廢水排入河川造成嚴重環境公害。課本從「社會契約論」出發，說明國家應如何解決此問題？",
+                options: [
+                    "將河川視為無主物，由先占用的養豬場取得排他所有權",
+                    "自然資源歸於政府財產，政府具支配管理河川權力，透過法律規範防止環境公害",
+                    "全面廢除私有財產制，禁止任何農業與畜牧業交易",
+                    "憲法第 15 條規定財產權受絕對保護，因此政府不得限制養豬場的使用方式"
+                ],
+                ans: 1,
+                exp: "課本 P.110：從社會契約論觀點，人民讓渡部分權利追求全體利益極大化，自然資源歸於政府財產，具支配管理河川權力，並透過法律規範防止環境公害；且所有權並非受絕對保護。"
+            },
+            {
+                q: "3. 【P.111 所有權的特性】小辰把自己的筆記型電腦借給好友使用半年，好友卻想把這台電腦拿到網路上賣掉換現金。小辰得知後立刻阻止並表示：「這台電腦只有我這一個所有權，你沒有所有權不能賣！」這是展現所有權的何種特性？",
+                options: [
+                    "排他性與保護絕對性",
+                    "債權相對性",
+                    "不動產登記生效性",
+                    "無主物先占性"
+                ],
+                ans: 0,
+                exp: "課本 P.111 圖 5-2-2：小辰可向任何人主張「雖然電腦借你很久但還是我的（保護絕對性）」，且一物只有一所有權，排除他人所有權主張，借用人不得拿去賣錢（排他性）。"
+            },
+            {
+                q: "4. 【P.112 一物二賣與優先性】小辰先在 LINE 上答應以 5,000 元將電腦賣給元元（尚未交付），隔天阿庭出價 6,000 元，小辰便將電腦當場「交付」給阿庭。請問此時電腦所有權屬於誰？為什麼？",
+                options: [
+                    "屬於元元，因為元元比阿庭更早與小辰成立買賣契約",
+                    "屬於阿庭，因為阿庭已受讓交付取得電腦物權，且物權優先於元元的債權",
+                    "屬於元元與阿庭共有，因為兩人都有出錢的意思",
+                    "屬於小辰，因為沒有到地政事務所辦理登記"
+                ],
+                ans: 1,
+                exp: "課本 P.112 圖 5-2-3：小辰將電腦交付給阿庭後，阿庭享有對電腦的物權，優先於元元的債權（優先性）；元元的買賣契約僅具債權相對效力，不得對抗阿庭。"
+            },
+            {
+                q: "5. 【P.113 民法第767條保障】小辰的鄰居在自家陽台施工，水泥塊搖搖欲墜，隨時可能掉下來砸壞小辰停在樓下的愛車（目前尚未砸中）。小辰依《民法》第 767 條預先要求鄰居做好防護網，這是行使何種權利？",
+                options: [
+                    "所有物返還請求權",
+                    "妨害除去請求權",
+                    "妨害防止請求權",
+                    "債務不履行請求權"
+                ],
+                ans: 2,
+                exp: "課本 P.113：對於「有妨害其所有權之虞者（可能會妨害所有權行使）」，得預先請求「防止」之，即妨害防止請求權。"
+            },
+            {
+                q: "6. 【P.113 民法第767條保障】承上題，若鄰居把廢棄大型家具直接堆放在小辰家車庫正門口，導致小辰雖然擁有車庫，卻完全無法把車開出來。小辰要求鄰居把廢棄家具移走，是行使何種請求權？",
+                options: [
+                    "所有物返還請求權",
+                    "妨害除去請求權",
+                    "妨害防止請求權",
+                    "智慧財產合理使用權"
+                ],
+                ans: 1,
+                exp: "課本 P.113：雖未占有所有權人之物，但其行為「已妨害」所有權人的權利行使時，得請求「除去」其妨害（妨害除去請求權）。"
+            },
+            {
+                q: "7. 【P.114 物權法定主義】甲與乙簽約時突发奇想，決定自己發明一種民法上沒有規定的新型物權叫做「超級永久霸占權」。請問在民法上有效嗎？",
+                options: [
+                    "有效，因為民法保障契約自由原則",
+                    "無效，因為民法採取「物權法定主義」，物權除依法律或習慣外，不得自行創設",
+                    "有效，只要到警察局備案即可創設新物權",
+                    "有效，因為古羅馬採取絕對所有權原則"
+                ],
+                ans: 1,
+                exp: "課本 P.114：物權優先於債權且具保護絕對性，影響第三人甚鉅，故民法規定「物權除依法律或習慣外，不得創設」，稱為「物權法定主義」。"
+            },
+            {
+                q: "8. 【P.114 所有權移轉生效要件】陳太太將一棟房屋賣給林先生，雙方於 5月1日 簽訂買賣契約，5月10日 陳太太交付房屋鑰匙讓林先生搬進去住，5月20日 雙方才到地政事務所完成移轉登記。請問林先生在哪一天才正式取得「房屋所有權」？",
+                options: [
+                    "5月1日（簽訂買賣契約時）",
+                    "5月10日（交付鑰匙入住時）",
+                    "5月20日（地政事務所辦理移轉登記完成時）",
+                    "付清尾款的那一天自動取得，不須登記"
+                ],
+                ans: 2,
+                exp: "課本 P.114 小辭典：依民法第 758 條第 1 項「不動產登記生效要件主義」，不動產物權行為非經地政機關辦理土地登記簿上之登記，不生效力！故 5月20日 登記完成才取得所有權。"
+            },
+            {
+                q: "9. 【P.115 私有財產與公益調和】臺灣建築常見一樓內縮的「騎樓」設計，屋主雖然擁有騎樓所有權，但依法須保留空間供行人行走。這體現了下列何種法律原則？",
+                options: [
+                    "古羅馬絕對所有權原則",
+                    "為維護公共利益與社會發展，法律得對私有所有權加以合理限制",
+                    "騎樓屬於無主物，任何人都可以封閉占為己有",
+                    "動產交付生效原則"
+                ],
+                ans: 1,
+                exp: "課本 P.115：現代社會互動緊密，若完全保障所有權有時會影響公共利益，臺灣騎樓內縮供行人通行，即為調和私有財產與公共利益而限制部分所有權的實例。"
+            },
+            {
+                q: "10. 【P.115 智慧財產權與開放原始碼】關於課本對於「智慧財產權」與「開放原始碼（Open Source）」的討論，下列敘述何者最符合教材旨意？",
+                options: [
+                    "商業軟體的原始碼全部都是公開讓使用者自由改寫的",
+                    "開放原始碼運動強調資訊自由流通與共享以對抗商業壟斷；而著作權法亦應保障一定的「合理使用權」以兼顧創作者權益與文化發展",
+                    "為了公共利益，應該完全廢除著作權法與專利法",
+                    "所有人從事創作與發明都只是為了金錢獲利，沒有例外"
+                ],
+                ans: 1,
+                exp: "課本 P.115：開放原始碼運動強調資訊自由流通與共享以對抗商業壟斷；法律應保障一定的「合理使用權」，如著作權法第1條所述，同時兼顧創作者權益與社會公共利益、文化發展。"
+            }
+        ];
+
+        let userQuizAnswers = {};
+
+        function renderQuizArena() {
+            const container = document.getElementById('quiz-questions-container');
+            container.innerHTML = QUIZ_DATA.map((item, qIdx) => {
+                const answered = userQuizAnswers[qIdx] !== undefined;
+                const userChoice = userQuizAnswers[qIdx];
+                return `
+                    <div class="glass-card rounded-2xl p-5 sm:p-6 border border-slate-700/80 space-y-4">
+                        <div class="text-sm sm:text-base font-black text-white leading-relaxed">${item.q}</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                            ${item.options.map((opt, oIdx) => {
+                                let btnStyle = "bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-200";
+                                if (answered) {
+                                    if (oIdx === item.ans) {
+                                        btnStyle = "bg-emerald-950/80 border-emerald-400 text-emerald-200 font-bold";
+                                    } else if (oIdx === userChoice && userChoice !== item.ans) {
+                                        btnStyle = "bg-rose-950/80 border-rose-500 text-rose-200";
+                                    } else {
+                                        btnStyle = "bg-slate-950/50 border-slate-800 text-slate-500";
+                                    }
+                                }
+                                return `
+                                    <button onclick="answerQuiz(${qIdx}, ${oIdx})" ${answered ? 'disabled' : ''} class="p-3.5 rounded-xl border text-left text-xs sm:text-sm transition-all flex items-start gap-2.5 ${btnStyle}">
+                                        <span class="font-mono font-bold shrink-0">${['A', 'B', 'C', 'D'][oIdx]}.</span>
+                                        <span>${opt}</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                        ${answered ? `
+                            <div class="p-3.5 rounded-xl text-xs sm:text-sm leading-relaxed ${userChoice === item.ans ? 'bg-emerald-950/50 border border-emerald-500/40 text-emerald-200' : 'bg-rose-950/50 border border-rose-500/40 text-rose-200'}">
+                                <strong>${userChoice === item.ans ? '✅ 答對了！' : `❌ 答錯了！正確答案為 (${['A','B','C','D'][item.ans]})`}</strong><br>
+                                ${item.exp}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            updateQuizScore();
+        }
+
+        function answerQuiz(qIdx, oIdx) {
+            if (userQuizAnswers[qIdx] !== undefined) return;
+            userQuizAnswers[qIdx] = oIdx;
+            if (oIdx === QUIZ_DATA[qIdx].ans) {
+                addXP(20);
+                playSfx('success');
+            } else {
+                playSfx('error');
+            }
+            renderQuizArena();
+        }
+
+        function updateQuizScore() {
+            let score = 0;
+            Object.keys(userQuizAnswers).forEach(qIdx => {
+                if (userQuizAnswers[qIdx] === QUIZ_DATA[qIdx].ans) score += 10;
+            });
+            const el = document.getElementById('quiz-score-num');
+            if (el) el.textContent = `${score} / 100`;
+        }
+
+        function resetQuiz() {
+            playSfx('click');
+            userQuizAnswers = {};
+            renderQuizArena();
+        }
+
+        /**************************************************************
+         * 9. CERTIFICATE & BADGES MODAL
+         **************************************************************/
+        function openCertificateModal() {
+            playSfx('click');
+            const modal = document.getElementById('certificate-modal');
+            const grid = document.getElementById('modal-badges-grid');
+            let count = 0;
+
+            grid.innerHTML = ISLANDS_DATA.map(island => {
+                const unlocked = gameState.badges[island.id];
+                if (unlocked) count++;
+                return `
+                    <div onclick="closeCertificateModal(); openIslandDetail(${island.id});" class="cursor-pointer p-3.5 rounded-xl border text-center space-y-1.5 transition-all ${
+                        unlocked
+                            ? 'bg-emerald-950/40 border-emerald-500/50 text-white'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-500'
+                    }">
+                        <div class="w-10 h-10 rounded-xl mx-auto flex items-center justify-center text-lg ${unlocked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-600'}">
+                            <i class="fa-solid ${island.icon}"></i>
+                        </div>
+                        <div class="text-xs font-black">${island.badgeName}</div>
+                        <div class="text-[10px] font-mono">${unlocked ? '✅ 已點亮' : '🔒 點擊前往解鎖'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const statusText = document.getElementById('cert-status-text');
+            if (count === 6) {
+                statusText.innerHTML = `🎉 <strong class="text-emerald-300">恭喜您已完成全數 6 座知識島實驗室探索！</strong>您已精通《公民與社會》所有權的物權特性、民法第767條、第758與761條移轉要件及公益調和精神！`;
+            } else {
+                statusText.innerHTML = `您目前已解鎖 <span class="text-amber-300 font-bold">${count} / 6</span> 座知識島徽章（累積 <span class="text-cyan-300 font-mono font-bold">${gameState.xp} XP</span>）。點擊上方任一徽章即可直接前往該島嶼實驗室！`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCertificateModal() {
+            playSfx('click');
+            document.getElementById('certificate-modal').classList.add('hidden');
+        }
+
+        /**************************************************************
+         * 10. INITIALIZATION ON WINDOW LOAD
+         **************************************************************/
+        window.onload = function () {
+            updateGamificationHUD();
+            initThreeMetaverse();
+            animateMetaverse();
+            // Pre-initialize Lab 3 default stage when user visits Island 3
+            const origRender = renderActiveIslandContent;
+            renderActiveIslandContent = function(id) {
+                origRender(id);
+                if (id === 3) setLab3Step(1);
+            };
+        };
+    </script>
+</body>
+</html>
